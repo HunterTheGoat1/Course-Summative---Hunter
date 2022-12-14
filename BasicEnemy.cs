@@ -12,7 +12,6 @@ namespace Course_Summative___Hunter
     {
 
         private Rectangle _rectangle;
-        private Vector2 _speed;
         private Texture2D _texture;
         private int _health;
 
@@ -28,6 +27,11 @@ namespace Course_Summative___Hunter
             get { return _texture; }
         }
 
+        public int Health
+        {
+            get { return _health; }
+        }
+
         public Rectangle BoundRect
         {
             get { return _rectangle; }
@@ -36,19 +40,19 @@ namespace Course_Summative___Hunter
 
         public double Move(GraphicsDeviceManager graphics, Rectangle castleRect, double castleHealth)
         {
-            if (_rectangle.X > 350)
+            if (_rectangle.X > 340)
             {
                 _rectangle.X--;
             }
-            if (_rectangle.Y > 350)
+            if (_rectangle.Y > 340)
             {
                 _rectangle.Y--;
             }
-            if (_rectangle.X < 350)
+            if (_rectangle.X < 340)
             {
                 _rectangle.X++;
             }
-            if (_rectangle.Y < 350)
+            if (_rectangle.Y < 340)
             {
                 _rectangle.Y++;
             }
@@ -58,6 +62,11 @@ namespace Course_Summative___Hunter
             }
 
             return castleHealth;
+        }
+
+        public void Damage (int ammount)
+        {
+            _health -= ammount;
         }
 
         public void Draw(SpriteBatch spriteBatch, SpriteFont healthFont)

@@ -1,6 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
+using System.Collections.Generic;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Course_Summative___Hunter
 {
@@ -20,7 +23,8 @@ namespace Course_Summative___Hunter
         SpriteFont badGuyHealth;
         Texture2D badGuyTexture;
         double castleHealth;
-        BasicEnemy test;
+        List<BasicEnemy> basicEnemys;
+        Random ranGen;
         Screen screen;
         enum Screen
         {
@@ -47,7 +51,36 @@ namespace Course_Summative___Hunter
             playButtonRect = new Rectangle(200, 530, 300, 150);
             castleRect = new Rectangle(275, 250, 150, 150);
             base.Initialize();
-            test = new BasicEnemy(new Rectangle(0, 0, 50, 50), badGuyTexture, 5);
+            ranGen = new Random();
+            basicEnemys = new List<BasicEnemy>();
+
+            for (int i = 0; i < 10; i++)
+            {
+                int x = 0;
+                int y = 0;
+                int spawnSide = ranGen.Next(1, 5);
+                if(spawnSide == 1)
+                {
+                    x = ranGen.Next(0, 650);
+                    y = ranGen.Next(-300, 50); ;
+                }
+                if(spawnSide == 2)
+                {
+                    x = ranGen.Next(0, 650);
+                    y = ranGen.Next(600, 1000);
+                }
+                if(spawnSide == 3)
+                {
+                    x = ranGen.Next(-300, 50); ;
+                    y = ranGen.Next(0, 650);
+                }
+                if(spawnSide == 4)
+                {
+                    x = ranGen.Next(600, 1000);
+                    y = ranGen.Next(0, 650);
+                }
+                basicEnemys.Add(new BasicEnemy(new Rectangle(x, y, 50, 50), badGuyTexture, 5));
+            }
         }
 
         protected override void LoadContent()
@@ -78,7 +111,19 @@ namespace Course_Summative___Hunter
 
             if (screen == Screen.GameScreen)
             {
-                castleHealth = test.Move(_graphics, castleRect, castleHealth);
+                int i = 0;
+                foreach (BasicEnemy enemyB in basicEnemys)
+                {
+                    if (mouseState.LeftButton == ButtonState.Pressed && preMouseState.LeftButton == ButtonState.Released)
+                        if (enemyB.BoundRect.Contains(mouseState.X, mouseState.Y))
+                            enemyB.Damage(1);
+                    if (enemyB.Health <= 0)
+                    {
+                        basicEnemys.RemoveAt(i);
+                    }
+                    castleHealth = enemyB.Move(_graphics, castleRect, castleHealth);
+                    i += 1;
+                }
             }
 
             if (screen == Screen.EndScreen)
@@ -106,7 +151,10 @@ namespace Course_Summative___Hunter
                 _spriteBatch.Draw(gameBackground, new Rectangle(0, 0, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight), Color.White);
                 _spriteBatch.Draw(mainCastle, castleRect, Color.White);
                 _spriteBatch.DrawString(castleHealthText, $"Castle: {System.Math.Round(castleHealth, 2)}", new Vector2(_graphics.PreferredBackBufferWidth/2 - 80, 0), Color.Red);
-                test.Draw(_spriteBatch, badGuyHealth);
+                foreach (BasicEnemy enemyB in basicEnemys)
+                {
+                    enemyB.Draw(_spriteBatch, badGuyHealth);
+                }
             }
 
             if (screen == Screen.EndScreen)
