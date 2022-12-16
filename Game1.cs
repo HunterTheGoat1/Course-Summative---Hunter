@@ -17,12 +17,18 @@ namespace Course_Summative___Hunter
         Texture2D playButton;
         Rectangle playButtonRect;
         MouseState mouseState;
-        MouseState preMouseState; 
+        MouseState preMouseState;
         Rectangle castleRect;
         SpriteFont castleHealthText;
         SpriteFont badGuyHealth;
-        Texture2D badGuyTexture;
+        Texture2D badGuyTextureUp;
+        Texture2D badGuyTextureDown;
+        Texture2D badGuyTextureLeft;
+        Texture2D badGuyTextureRight;
+        Texture2D coinIcon;
+        Texture2D heartIcon;
         double castleHealth;
+        int coins;
         List<BasicEnemy> basicEnemys;
         Random ranGen;
         Screen screen;
@@ -48,6 +54,7 @@ namespace Course_Summative___Hunter
             this.Window.Title = "Castle Hold Up";
             screen = Screen.MainMenu;
             castleHealth = 100;
+            coins = 0;
             playButtonRect = new Rectangle(200, 530, 300, 150);
             castleRect = new Rectangle(275, 250, 150, 150);
             base.Initialize();
@@ -56,30 +63,35 @@ namespace Course_Summative___Hunter
 
             for (int i = 0; i < 10; i++)
             {
+                Texture2D basicTexture = badGuyTextureDown;
                 int x = 0;
                 int y = 0;
                 int spawnSide = ranGen.Next(1, 5);
-                if(spawnSide == 1)
+                if (spawnSide == 1)
                 {
                     x = ranGen.Next(0, 650);
-                    y = ranGen.Next(-300, 50); ;
+                    y = ranGen.Next(-300, 50);
+                    basicTexture = badGuyTextureDown;
                 }
-                if(spawnSide == 2)
+                if (spawnSide == 2)
                 {
                     x = ranGen.Next(0, 650);
                     y = ranGen.Next(600, 1000);
+                    basicTexture = badGuyTextureUp;
                 }
-                if(spawnSide == 3)
+                if (spawnSide == 3)
                 {
-                    x = ranGen.Next(-300, 50); ;
+                    x = ranGen.Next(-300, 50);
                     y = ranGen.Next(0, 650);
+                    basicTexture = badGuyTextureRight;
                 }
-                if(spawnSide == 4)
+                if (spawnSide == 4)
                 {
                     x = ranGen.Next(600, 1000);
                     y = ranGen.Next(0, 650);
+                    basicTexture = badGuyTextureLeft;
                 }
-                basicEnemys.Add(new BasicEnemy(new Rectangle(x, y, 50, 50), badGuyTexture, 5));
+                basicEnemys.Add(new BasicEnemy(new Rectangle(x, y, 50, 50), basicTexture, 2));
             }
         }
 
@@ -92,7 +104,12 @@ namespace Course_Summative___Hunter
             playButton = Content.Load<Texture2D>("playButton");
             castleHealthText = Content.Load<SpriteFont>("healthText");
             badGuyHealth = Content.Load<SpriteFont>("badGuyHealth");
-            badGuyTexture = Content.Load<Texture2D>("basicEnemy");
+            badGuyTextureDown = Content.Load<Texture2D>("basicEnemyDown");
+            badGuyTextureUp = Content.Load<Texture2D>("basicEnemyUp");
+            badGuyTextureLeft = Content.Load<Texture2D>("basicEnemyLeft");
+            badGuyTextureRight = Content.Load<Texture2D>("basicEnemyRight");
+            heartIcon = Content.Load<Texture2D>("heartIcon");
+            coinIcon = Content.Load<Texture2D>("coinIcon");
         }
 
         protected override void Update(GameTime gameTime)
@@ -109,24 +126,31 @@ namespace Course_Summative___Hunter
                         screen = Screen.GameScreen;
             }
 
-            if (screen == Screen.GameScreen)
+            else if (screen == Screen.GameScreen)
             {
-                int i = 0;
-                foreach (BasicEnemy enemyB in basicEnemys)
+                bool test = false;
+                for (int i = 0; i < basicEnemys.Count; i++)
                 {
-                    if (mouseState.LeftButton == ButtonState.Pressed && preMouseState.LeftButton == ButtonState.Released)
-                        if (enemyB.BoundRect.Contains(mouseState.X, mouseState.Y))
-                            enemyB.Damage(1);
-                    if (enemyB.Health <= 0)
+                    castleHealth = basicEnemys[i].Move(_graphics, castleRect, castleHealth);
+                    // Detects a click on enemies, applies damage
+                    if (!test && mouseState.LeftButton == ButtonState.Pressed && preMouseState.LeftButton == ButtonState.Released)
                     {
-                        basicEnemys.RemoveAt(i);
+                        if (basicEnemys[i].BoundRect.Contains(mouseState.X, mouseState.Y))
+                        {
+                            test = true;
+                            basicEnemys[i].Damage(1);
+                            if (basicEnemys[i].Health <= 0)
+                            {
+                                basicEnemys.RemoveAt(i);
+                                coins += ranGen.Next(1, 4);
+                                i--;
+                            }
+                        }
                     }
-                    castleHealth = enemyB.Move(_graphics, castleRect, castleHealth);
-                    i += 1;
                 }
             }
 
-            if (screen == Screen.EndScreen)
+            else if (screen == Screen.EndScreen)
             {
 
             }
@@ -150,7 +174,10 @@ namespace Course_Summative___Hunter
             {
                 _spriteBatch.Draw(gameBackground, new Rectangle(0, 0, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight), Color.White);
                 _spriteBatch.Draw(mainCastle, castleRect, Color.White);
-                _spriteBatch.DrawString(castleHealthText, $"Castle: {System.Math.Round(castleHealth, 2)}", new Vector2(_graphics.PreferredBackBufferWidth/2 - 80, 0), Color.Red);
+                _spriteBatch.Draw(heartIcon, new Rectangle(0, 0, 25, 25), Color.White);
+                _spriteBatch.DrawString(castleHealthText, $"{System.Math.Round(castleHealth, 2)}", new Vector2(30, 0), Color.Red);
+                _spriteBatch.Draw(coinIcon, new Rectangle(0, 32, 25, 25), Color.White);
+                _spriteBatch.DrawString(castleHealthText, $"{coins}", new Vector2(30,30), Color.Gold);
                 foreach (BasicEnemy enemyB in basicEnemys)
                 {
                     enemyB.Draw(_spriteBatch, badGuyHealth);
