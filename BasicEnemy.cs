@@ -58,7 +58,7 @@ namespace Course_Summative___Hunter
             }
             if(castleRect.Contains(_rectangle))
             {
-                castleHealth -= 0.1;
+                castleHealth -= 0.01;
             }
 
             return castleHealth;
