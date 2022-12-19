@@ -27,8 +27,13 @@ namespace Course_Summative___Hunter
         Texture2D badGuyTextureRight;
         Texture2D coinIcon;
         Texture2D heartIcon;
+        Texture2D shopIcon;
+        Texture2D shopTint;
+        Texture2D swordIcon;
+        Rectangle shopButton;
         double castleHealth;
         int coins;
+        int atkDamage;
         List<BasicEnemy> basicEnemys;
         Random ranGen;
         Screen screen;
@@ -36,6 +41,7 @@ namespace Course_Summative___Hunter
         {
             MainMenu,
             GameScreen,
+            ShopScreen,
             EndScreen
         }
 
@@ -55,13 +61,15 @@ namespace Course_Summative___Hunter
             screen = Screen.MainMenu;
             castleHealth = 100;
             coins = 0;
+            atkDamage = 1;
             playButtonRect = new Rectangle(200, 530, 300, 150);
             castleRect = new Rectangle(275, 250, 150, 150);
+            shopButton = new Rectangle(620, 5, 75, 75);
             base.Initialize();
             ranGen = new Random();
             basicEnemys = new List<BasicEnemy>();
 
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 25; i++)
             {
                 Texture2D basicTexture = badGuyTextureDown;
                 int x = 0;
@@ -110,6 +118,9 @@ namespace Course_Summative___Hunter
             badGuyTextureRight = Content.Load<Texture2D>("basicEnemyRight");
             heartIcon = Content.Load<Texture2D>("heartIcon");
             coinIcon = Content.Load<Texture2D>("coinIcon");
+            shopIcon = Content.Load<Texture2D>("shopIcon");
+            swordIcon = Content.Load<Texture2D>("swordIcon");
+            shopTint = Content.Load<Texture2D>("shopTint");
         }
 
         protected override void Update(GameTime gameTime)
@@ -138,7 +149,7 @@ namespace Course_Summative___Hunter
                         if (basicEnemys[i].BoundRect.Contains(mouseState.X, mouseState.Y))
                         {
                             test = true;
-                            basicEnemys[i].Damage(1);
+                            basicEnemys[i].Damage(atkDamage);
                             if (basicEnemys[i].Health <= 0)
                             {
                                 basicEnemys.RemoveAt(i);
@@ -146,6 +157,23 @@ namespace Course_Summative___Hunter
                                 i--;
                             }
                         }
+                    }
+                }
+                if (mouseState.LeftButton == ButtonState.Pressed && preMouseState.LeftButton == ButtonState.Released)
+                {
+                    if (shopButton.Contains(mouseState.X, mouseState.Y))
+                    {
+                        screen = Screen.ShopScreen;
+                    }
+                }
+            }
+            else if (screen == Screen.ShopScreen)
+            {
+                if (mouseState.LeftButton == ButtonState.Pressed && preMouseState.LeftButton == ButtonState.Released)
+                {
+                    if (shopButton.Contains(mouseState.X, mouseState.Y))
+                    {
+                        screen = Screen.GameScreen;
                     }
                 }
             }
@@ -170,24 +198,46 @@ namespace Course_Summative___Hunter
                 _spriteBatch.Draw(playButton, playButtonRect, Color.White);
             }
 
-            if (screen == Screen.GameScreen)
+            else if (screen == Screen.GameScreen)
             {
                 _spriteBatch.Draw(gameBackground, new Rectangle(0, 0, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight), Color.White);
                 _spriteBatch.Draw(mainCastle, castleRect, Color.White);
                 _spriteBatch.Draw(heartIcon, new Rectangle(0, 0, 25, 25), Color.White);
                 _spriteBatch.DrawString(castleHealthText, $"{System.Math.Round(castleHealth, 2)}", new Vector2(30, 0), Color.Red);
                 _spriteBatch.Draw(coinIcon, new Rectangle(0, 32, 25, 25), Color.White);
-                _spriteBatch.DrawString(castleHealthText, $"{coins}", new Vector2(30,30), Color.Gold);
+                _spriteBatch.DrawString(castleHealthText, $"{coins}", new Vector2(30, 30), Color.Gold);
+                _spriteBatch.Draw(shopIcon, shopButton, Color.White);
+                _spriteBatch.Draw(swordIcon, new Rectangle(0, 64, 22, 22), Color.White);
+                _spriteBatch.DrawString(castleHealthText, $"{atkDamage}", new Vector2(30, 60), Color.LightGray);
                 foreach (BasicEnemy enemyB in basicEnemys)
                 {
                     enemyB.Draw(_spriteBatch, badGuyHealth);
                 }
             }
 
-            if (screen == Screen.EndScreen)
+            else if (screen == Screen.ShopScreen)
+            {
+                _spriteBatch.Draw(gameBackground, new Rectangle(0, 0, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight), Color.White);
+                _spriteBatch.Draw(mainCastle, castleRect, Color.White);
+                _spriteBatch.Draw(heartIcon, new Rectangle(0, 0, 25, 25), Color.White);
+                _spriteBatch.DrawString(castleHealthText, $"{System.Math.Round(castleHealth, 2)}", new Vector2(30, 0), Color.Red);
+                _spriteBatch.Draw(coinIcon, new Rectangle(0, 32, 25, 25), Color.White);
+                _spriteBatch.DrawString(castleHealthText, $"{coins}", new Vector2(30, 30), Color.Gold);
+                _spriteBatch.Draw(shopIcon, shopButton, Color.White);
+                _spriteBatch.Draw(swordIcon, new Rectangle(0, 64, 22, 22), Color.White);
+                _spriteBatch.DrawString(castleHealthText, $"{atkDamage}", new Vector2(30, 60), Color.LightGray);
+                foreach (BasicEnemy enemyB in basicEnemys)
+                {
+                    enemyB.Draw(_spriteBatch, badGuyHealth);
+                }
+                _spriteBatch.Draw(shopTint, new Rectangle(100, 0, 520, 100), Color.White);
+            }
+
+            else if (screen == Screen.EndScreen)
             {
 
             }
+
             _spriteBatch.End();
 
             base.Draw(gameTime);
