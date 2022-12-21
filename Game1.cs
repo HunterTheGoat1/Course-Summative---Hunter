@@ -236,6 +236,7 @@ namespace Course_Summative___Hunter
             else if (screen == Screen.EndScreen)
             {
 
+
             }
 
             base.Update(gameTime);
