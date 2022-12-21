@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿//Game By Hunter Wilson, ICS4U-01
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
@@ -54,8 +55,8 @@ namespace Course_Summative___Hunter
         //MouseStates
         MouseState mouseState;
         MouseState preMouseState;
-        
-        //Randon Gen
+
+        //Random Gen
         Random ranGen;
 
         //Screens
@@ -91,7 +92,7 @@ namespace Course_Summative___Hunter
 
             //Number Setup
             castleHealth = 100;
-            coins = 0;
+            coins = 9000000;
             wave = 0;
             atkDamage = 1;
             bladeCount = 0;
@@ -137,7 +138,7 @@ namespace Course_Summative___Hunter
             castleHealthText = Content.Load<SpriteFont>("healthText");
             badGuyHealthText = Content.Load<SpriteFont>("badGuyHealth");
             shopText = Content.Load<SpriteFont>("shopText");
-            
+
         }
 
         protected override void Update(GameTime gameTime)
@@ -173,7 +174,7 @@ namespace Course_Summative___Hunter
                     //Makes The New List For The Current Wave, Uses Five Wave Count And Math To Increase Wave Difficulty
                     for (int i = 0; i < (fiveWaveCount + 10); i++)
                     {
-                        //Makes Random Spawn Side Then Applys The Right Texture To The Bad Guy
+                        //Makes Random Spawn Side Then Apply's The Right Texture To The Bad Guy
                         Texture2D basicTexture = badGuyTextureDown;
                         int x = 0;
                         int y = 0;
@@ -203,7 +204,7 @@ namespace Course_Summative___Hunter
                             basicTexture = badGuyTextureLeft;
                         }
                         //Adds Bad Guy To The Wave List
-                        basicEnemys.Add(new BasicEnemy(new Rectangle(x, y, 50, 50), basicTexture, Convert.ToInt32(System.Math.Round(fiveWaveCount +1))));
+                        basicEnemys.Add(new BasicEnemy(new Rectangle(x, y, 50, 50), basicTexture, Convert.ToInt32(System.Math.Round(fiveWaveCount + 1))));
                     }
                 }
 
@@ -214,43 +215,32 @@ namespace Course_Summative___Hunter
                 //Loops Through Bad Guy List
                 for (int i = 0; i < basicEnemys.Count; i++)
                 {
-                    //The Try Is Here To Stop A Very Uncommon Bug That I Could Not Find The Cause Of, Works Fine Now With The Try
-                    try
-                    {
-                        //Moves The Bad Guys And Checks If They Hit The Castle, If They Did, It Sets The Castle Health To Its New Value
-                        castleHealth = basicEnemys[i].Move(_graphics, castleRect, castleHealth);
+                    //Moves The Bad Guys And Checks If They Hit The Castle, If They Did, It Sets The Castle Health To Its New Value
+                    castleHealth = basicEnemys[i].Move(_graphics, castleRect, castleHealth);
 
-                        //Checks If The Blades Hit Or Kill Someone, Gives Coins
-                        foreach (Blade blade in bladesList)
+                    //Checks If The Blades Hits, Applies Damage
+                    foreach (Blade blade in bladesList)
+                    {
+                        if (!bladeHit && blade.BoundRect.Intersects(basicEnemys[i].BoundRect))
                         {
-                            if (!bladeHit && blade.BoundRect.Intersects(basicEnemys[i].BoundRect))
-                            {
-                                bladeHit = true;
-                                basicEnemys[i].Damage(1);
-                                if (basicEnemys[i].Health <= 0)
-                                {
-                                    basicEnemys.RemoveAt(i);
-                                    coins += ranGen.Next(1, 4);
-                                    i--;
-                                }
-                            }
+                            bladeHit = true;
+                            basicEnemys[i].Damage(1);
                         }
-                        // Detects A Click on Enemies, Applies Damage, Checks For Death, Gives Coins
-                        if (!clickedOne && mouseState.LeftButton == ButtonState.Pressed && preMouseState.LeftButton == ButtonState.Released)
-                        {
-                            if (basicEnemys[i].BoundRect.Contains(mouseState.X, mouseState.Y))
-                            {
-                                clickedOne = true;
-                                basicEnemys[i].Damage(atkDamage);
-                                if (basicEnemys[i].Health <= 0)
-                                {
-                                    basicEnemys.RemoveAt(i);
-                                    coins += ranGen.Next(1, 4);
-                                    i--;
-                                }
-                            }
+                    }
+                    // Detects A Click on Enemies, Applies Damage
+                    if (!clickedOne && mouseState.LeftButton == ButtonState.Pressed && preMouseState.LeftButton == ButtonState.Released){
+                        if (basicEnemys[i].BoundRect.Contains(mouseState.X, mouseState.Y)){
+                            clickedOne = true;
+                            basicEnemys[i].Damage(atkDamage);
+                            
                         }
-                    } catch {}
+                    }
+                    //Checks If A Enemy Dies, Gives Coins
+                    if (basicEnemys[i].Health <= 0){
+                        basicEnemys.RemoveAt(i);
+                        coins += ranGen.Next(1, 4);
+                        i--;
+                    }
                 }
                 //Moves The Blades
                 foreach (Blade blade in bladesList)
