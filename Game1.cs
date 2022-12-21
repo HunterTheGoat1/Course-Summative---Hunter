@@ -122,7 +122,10 @@ namespace Course_Summative___Hunter
             {
                 if (basicEnemys.Count == 0)
                 {
-                    for (int i = 0; i < 10; i++)
+                    wave++;
+                    double fiveWaveCount = wave / 5;
+                    fiveWaveCount = Convert.ToInt32(System.Math.Round(fiveWaveCount));
+                    for (int i = 0; i < (fiveWaveCount + 10); i++)
                     {
                         Texture2D basicTexture = badGuyTextureDown;
                         int x = 0;
@@ -152,44 +155,48 @@ namespace Course_Summative___Hunter
                             y = ranGen.Next(0, 650);
                             basicTexture = badGuyTextureLeft;
                         }
-                        basicEnemys.Add(new BasicEnemy(new Rectangle(x, y, 50, 50), basicTexture, 2));
+                        basicEnemys.Add(new BasicEnemy(new Rectangle(x, y, 50, 50), basicTexture, Convert.ToInt32(System.Math.Round(fiveWaveCount +1))));
                     }
                 }
 
-                bool test = false;
+                bool clickedOne = false;
+                bool bladeHit = false;
 
                 for (int i = 0; i < basicEnemys.Count; i++)
                 {
-                    castleHealth = basicEnemys[i].Move(_graphics, castleRect, castleHealth);
-                    foreach (Blade blade in bladesList)
+                    try
                     {
-                        if (!test && blade.BoundRect.Intersects(basicEnemys[i].BoundRect))
+                        castleHealth = basicEnemys[i].Move(_graphics, castleRect, castleHealth);
+                        foreach (Blade blade in bladesList)
                         {
-                            test = true;
-                            basicEnemys[i].Damage(1);
-                            if (basicEnemys[i].Health <= 0)
+                            if (!bladeHit && blade.BoundRect.Intersects(basicEnemys[i].BoundRect))
                             {
-                                basicEnemys.RemoveAt(i);
-                                coins += ranGen.Next(1, 4);
-                                i--;
+                                bladeHit = true;
+                                basicEnemys[i].Damage(1);
+                                if (basicEnemys[i].Health <= 0)
+                                {
+                                    basicEnemys.RemoveAt(i);
+                                    coins += ranGen.Next(1, 4);
+                                    i--;
+                                }
                             }
                         }
-                    }
-                    // Detects a click on enemies, applies damage
-                    if (!test && mouseState.LeftButton == ButtonState.Pressed && preMouseState.LeftButton == ButtonState.Released)
-                    {
-                        if (basicEnemys[i].BoundRect.Contains(mouseState.X, mouseState.Y))
+                        // Detects a click on enemies, applies damage
+                        if (!clickedOne && mouseState.LeftButton == ButtonState.Pressed && preMouseState.LeftButton == ButtonState.Released)
                         {
-                            test = true;
-                            basicEnemys[i].Damage(atkDamage);
-                            if (basicEnemys[i].Health <= 0)
+                            if (basicEnemys[i].BoundRect.Contains(mouseState.X, mouseState.Y))
                             {
-                                basicEnemys.RemoveAt(i);
-                                coins += ranGen.Next(1, 4);
-                                i--;
+                                clickedOne = true;
+                                basicEnemys[i].Damage(atkDamage);
+                                if (basicEnemys[i].Health <= 0)
+                                {
+                                    basicEnemys.RemoveAt(i);
+                                    coins += ranGen.Next(1, 4);
+                                    i--;
+                                }
                             }
                         }
-                    }
+                    } catch {}
                 }
                 foreach (Blade blade in bladesList)
                 {
@@ -275,6 +282,7 @@ namespace Course_Summative___Hunter
                 {
                     blade.Draw(_spriteBatch);
                 }
+                _spriteBatch.DrawString(castleHealthText, $"Wave: {wave}", new Vector2(300, 0), Color.Black);
             }
 
             else if (screen == Screen.ShopScreen)
