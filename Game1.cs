@@ -298,6 +298,7 @@ namespace Course_Summative___Hunter
                     blade.Draw(_spriteBatch);
                 }
                 _spriteBatch.Draw(shopTint, new Rectangle(100, 0, 520, 100), Color.White);
+
                 _spriteBatch.Draw(swordIcon, atkBuyRect, Color.White);
                 _spriteBatch.DrawString(shopText, $"{atkDamage} -> {atkDamage + 1}", new Vector2(125, 0), Color.LightGray);
                 if (coins >= atkDamage * 10)
