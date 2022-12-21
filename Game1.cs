@@ -228,15 +228,18 @@ namespace Course_Summative___Hunter
                         }
                     }
                     // Detects A Click on Enemies, Applies Damage
-                    if (!clickedOne && mouseState.LeftButton == ButtonState.Pressed && preMouseState.LeftButton == ButtonState.Released){
-                        if (basicEnemys[i].BoundRect.Contains(mouseState.X, mouseState.Y)){
+                    if (!clickedOne && mouseState.LeftButton == ButtonState.Pressed && preMouseState.LeftButton == ButtonState.Released)
+                    {
+                        if (basicEnemys[i].BoundRect.Contains(mouseState.X, mouseState.Y))
+                        {
                             clickedOne = true;
                             basicEnemys[i].Damage(atkDamage);
-                            
+
                         }
                     }
                     //Checks If A Enemy Dies, Gives Coins
-                    if (basicEnemys[i].Health <= 0){
+                    if (basicEnemys[i].Health <= 0)
+                    {
                         basicEnemys.RemoveAt(i);
                         coins += ranGen.Next(1, 4);
                         i--;
