@@ -14,6 +14,7 @@ namespace Course_Summative___Hunter
         private SpriteBatch _spriteBatch;
 
         //Textures
+        Texture2D gameTitle;
         Texture2D gameBackground;
         Texture2D howToPlayTexture;
         Texture2D castleTexture;
@@ -105,8 +106,8 @@ namespace Course_Summative___Hunter
 
             //Number Setup
             castleHealth = 100;
-            coins = 5000;
-            wave = 15;
+            coins = 0;
+            wave = 0;
             atkDamage = 1;
             bladeCount = 0;
 
@@ -135,6 +136,7 @@ namespace Course_Summative___Hunter
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             //Loads Textures
+            gameTitle = Content.Load<Texture2D>("gameTitle");
             gameBackground = Content.Load<Texture2D>("gameBackground");
             castleTexture = Content.Load<Texture2D>("castle");
             menuBackground = Content.Load<Texture2D>("menuBackground");
@@ -507,6 +509,7 @@ namespace Course_Summative___Hunter
                 _spriteBatch.Draw(menuBackground, new Rectangle(0, 0, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight), Color.White);
                 _spriteBatch.Draw(playButton, playButtonRect, Color.White);
                 _spriteBatch.Draw(howToPlayTexture, howToPlayRect, Color.White);
+                _spriteBatch.Draw(gameTitle, new Rectangle(100, 250, 500, 100), Color.White);
             }
 
             //Game Screen
