@@ -15,6 +15,7 @@ namespace Course_Summative___Hunter
 
         //Textures
         Texture2D gameBackground;
+        Texture2D howToPlayTexture;
         Texture2D castleTexture;
         Texture2D menuBackground;
         Texture2D playButton;
@@ -26,6 +27,10 @@ namespace Course_Summative___Hunter
         Texture2D reinforcedEnemyDown;
         Texture2D reinforcedEnemyLeft;
         Texture2D reinforcedEnemyRight;
+        Texture2D ramEnemyUp;
+        Texture2D ramEnemyDown;
+        Texture2D ramEnemyLeft;
+        Texture2D ramEnemyRight;
         Texture2D coinIcon;
         Texture2D heartIcon;
         Texture2D shopIcon;
@@ -39,6 +44,7 @@ namespace Course_Summative___Hunter
         Rectangle shopButtonRect;
         Rectangle atkBuyRect;
         Rectangle bladeBuyRect;
+        Rectangle howToPlayRect;
 
         //SpriteFonts
         SpriteFont castleHealthText;
@@ -56,6 +62,7 @@ namespace Course_Summative___Hunter
         List<BasicEnemy> basicEnemys;
         List<Blade> bladesList;
         List<ReinforcedEnemy> reinforcedEnemyList;
+        List<RamEnemy> ramEnemyList;
 
         //MouseStates
         MouseState mouseState;
@@ -69,6 +76,7 @@ namespace Course_Summative___Hunter
         enum Screen
         {
             MainMenu,
+            HowToPlay,
             GameScreen,
             ShopScreen,
             EndScreen
@@ -97,8 +105,8 @@ namespace Course_Summative___Hunter
 
             //Number Setup
             castleHealth = 100;
-            coins = 0;
-            wave = 0;
+            coins = 5000;
+            wave = 15;
             atkDamage = 1;
             bladeCount = 0;
 
@@ -108,6 +116,7 @@ namespace Course_Summative___Hunter
             shopButtonRect = new Rectangle(620, 5, 75, 75);
             atkBuyRect = new Rectangle(150, 25, 50, 50);
             bladeBuyRect = new Rectangle(250, 25, 50, 50);
+            howToPlayRect = new Rectangle(10, 10, 150, 75);
 
             base.Initialize();
 
@@ -118,6 +127,7 @@ namespace Course_Summative___Hunter
             basicEnemys = new List<BasicEnemy>();
             bladesList = new List<Blade>();
             reinforcedEnemyList = new List<ReinforcedEnemy>();
+            ramEnemyList = new List<RamEnemy>();
         }
 
         protected override void LoadContent()
@@ -137,12 +147,17 @@ namespace Course_Summative___Hunter
             reinforcedEnemyDown = Content.Load<Texture2D>("reinforcedEnemyDown");
             reinforcedEnemyLeft = Content.Load<Texture2D>("reinforcedEnemyLeft");
             reinforcedEnemyRight = Content.Load<Texture2D>("reinforcedEnemyRight");
+            ramEnemyUp = Content.Load<Texture2D>("ramEnemyUp");
+            ramEnemyDown = Content.Load<Texture2D>("ramEnemyDown");
+            ramEnemyLeft = Content.Load<Texture2D>("ramEnemyLeft");
+            ramEnemyRight = Content.Load<Texture2D>("ramEnemyRight");
             heartIcon = Content.Load<Texture2D>("heartIcon");
             coinIcon = Content.Load<Texture2D>("coinIcon");
             shopIcon = Content.Load<Texture2D>("shopIcon");
             swordIcon = Content.Load<Texture2D>("swordIcon");
             shopTint = Content.Load<Texture2D>("shopTint");
             sawBladeTexture = Content.Load<Texture2D>("sawBlade");
+            howToPlayTexture = Content.Load<Texture2D>("HowToPlay");
 
             //Loads SpriteFonts
             castleHealthText = Content.Load<SpriteFont>("healthText");
@@ -168,13 +183,26 @@ namespace Course_Summative___Hunter
                 if (mouseState.LeftButton == ButtonState.Pressed && preMouseState.LeftButton == ButtonState.Released)
                     if (playButtonRect.Contains(mouseState.X, mouseState.Y))
                         screen = Screen.GameScreen;
+                //Checks If User Clicks How To Play, Then Changes The Screen To The How To Play Screen If They Pressed It
+                if (mouseState.LeftButton == ButtonState.Pressed && preMouseState.LeftButton == ButtonState.Released)
+                    if (howToPlayRect.Contains(mouseState.X, mouseState.Y))
+                        screen = Screen.HowToPlay;
+            }
+
+            //The How To Play Screen
+            if (screen == Screen.MainMenu)
+            {
+                //Checks If User Clicks Back To Main Menu
+                if (mouseState.LeftButton == ButtonState.Pressed && preMouseState.LeftButton == ButtonState.Released)
+                    if (playButtonRect.Contains(mouseState.X, mouseState.Y))
+                        screen = Screen.MainMenu;
             }
 
             //The Game Screen
             else if (screen == Screen.GameScreen)
             {
                 //Checks If The Wave Is Over
-                if (basicEnemys.Count == 0 && reinforcedEnemyList.Count == 0)
+                if (basicEnemys.Count == 0 && reinforcedEnemyList.Count == 0 && ramEnemyList.Count == 0)
                 {
                     //Adds Wave Count And Sets Up The Five Wave Count, Five Wave Count Goes Up By 1 Every 5 Waves
                     wave++;
@@ -257,6 +285,47 @@ namespace Course_Summative___Hunter
                             reinforcedEnemyList.Add(new ReinforcedEnemy(new Rectangle(x, y, 60, 60), basicTexture, Convert.ToInt32(System.Math.Round((fiveWaveCount + 1) * 2))));
                         }
                     }
+                    int ramSpawnAmmount = ranGen.Next(0, Convert.ToInt32(System.Math.Round(fiveWaveCount)));
+                    //Checks if ram enemy's should spawn, only after round 15
+                    if (ramSpawnAmmount > 2)
+                    {
+                        ramSpawnAmmount -= 2;
+                        //Makes The New List For The Current Wave, Uses Five Wave Count And Math To Increase Wave Difficulty
+                        for (int i = 0; i < ramSpawnAmmount; i++)
+                        {
+                            //Makes Random Spawn Side Then Apply's The Right Texture To The Reinforced Bad Guy
+                            Texture2D basicTexture = ramEnemyDown;
+                            int x = 0;
+                            int y = 0;
+                            int spawnSide = ranGen.Next(1, 5);
+                            if (spawnSide == 1)
+                            {
+                                x = ranGen.Next(0, 650);
+                                y = ranGen.Next(-300, 50);
+                                basicTexture = ramEnemyDown;
+                            }
+                            if (spawnSide == 2)
+                            {
+                                x = ranGen.Next(0, 650);
+                                y = ranGen.Next(600, 1000);
+                                basicTexture = ramEnemyUp;
+                            }
+                            if (spawnSide == 3)
+                            {
+                                x = ranGen.Next(-300, 50);
+                                y = ranGen.Next(0, 650);
+                                basicTexture = ramEnemyRight;
+                            }
+                            if (spawnSide == 4)
+                            {
+                                x = ranGen.Next(600, 1000);
+                                y = ranGen.Next(0, 650);
+                                basicTexture = ramEnemyLeft;
+                            }
+                            //Adds Bad Guy To The Wave List
+                            ramEnemyList.Add(new RamEnemy(new Rectangle(x, y, 60, 60), basicTexture, Convert.ToInt32(System.Math.Round((fiveWaveCount + 1)))));
+                        }
+                    }
                 }
 
                 //Used To Stop Over Hitting
@@ -320,6 +389,39 @@ namespace Course_Summative___Hunter
                     }
                 }
 
+                //Loops through ram bad guys
+                for (int i = 0; i < ramEnemyList.Count; i++)
+                {
+                    //Moves The Bad Guys And Checks If They Hit The Castle, If They Did, It Sets The Castle Health To Its New Value
+                    castleHealth = ramEnemyList[i].Move(_graphics, castleRect, castleHealth);
+
+                    // Detects A Click on Enemies, Applies Damage
+                    if (!clickedOne && mouseState.LeftButton == ButtonState.Pressed && preMouseState.LeftButton == ButtonState.Released)
+                    {
+                        if (ramEnemyList[i].BoundRect.Contains(mouseState.X, mouseState.Y))
+                        {
+                            clickedOne = true;
+                            ramEnemyList[i].Damage(atkDamage);
+
+                        }
+                    }
+                    //Checks If The Blades Hits, Applies Damage
+                    foreach (Blade blade in bladesList)
+                    {
+                        if (blade.BoundRect.Intersects(ramEnemyList[i].BoundRect))
+                        {
+                            ramEnemyList[i].Damage(1);
+                        }
+                    }
+                    //Checks If A Enemy Dies, Gives Coins
+                    if (ramEnemyList[i].Health <= 0)
+                    {
+                        ramEnemyList.RemoveAt(i);
+                        coins += ranGen.Next(5, 12);
+                        i--;
+                    }
+                }
+
                 //Moves The Blades
                 foreach (Blade blade in bladesList)
                 {
@@ -333,6 +435,11 @@ namespace Course_Summative___Hunter
                         screen = Screen.ShopScreen;
                     }
                 }
+            }
+            //How To Play Screen
+            else if (screen == Screen.HowToPlay)
+            { 
+
             }
             //The Shop Screen
             else if (screen == Screen.ShopScreen)
@@ -399,6 +506,7 @@ namespace Course_Summative___Hunter
                 //Draws All The Things Needed In The Main Screen
                 _spriteBatch.Draw(menuBackground, new Rectangle(0, 0, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight), Color.White);
                 _spriteBatch.Draw(playButton, playButtonRect, Color.White);
+                _spriteBatch.Draw(howToPlayTexture, howToPlayRect, Color.White);
             }
 
             //Game Screen
@@ -421,6 +529,10 @@ namespace Course_Summative___Hunter
                     enemyB.Draw(_spriteBatch, badGuyHealthText);
                 }
                 foreach (ReinforcedEnemy enemyB in reinforcedEnemyList)
+                {
+                    enemyB.Draw(_spriteBatch, badGuyHealthText);
+                }
+                foreach (RamEnemy enemyB in ramEnemyList)
                 {
                     enemyB.Draw(_spriteBatch, badGuyHealthText);
                 }
@@ -447,6 +559,14 @@ namespace Course_Summative___Hunter
                 _spriteBatch.Draw(sawBladeTexture, new Rectangle(0, 94, 22, 22), Color.White);
                 _spriteBatch.DrawString(castleHealthText, $"{bladeCount}", new Vector2(30, 90), Color.LightGray);
                 foreach (BasicEnemy enemyB in basicEnemys)
+                {
+                    enemyB.Draw(_spriteBatch, badGuyHealthText);
+                }
+                foreach (ReinforcedEnemy enemyB in reinforcedEnemyList)
+                {
+                    enemyB.Draw(_spriteBatch, badGuyHealthText);
+                }
+                foreach (RamEnemy enemyB in ramEnemyList)
                 {
                     enemyB.Draw(_spriteBatch, badGuyHealthText);
                 }
