@@ -32,12 +32,17 @@ namespace Course_Summative___Hunter
         Texture2D ramEnemyDown;
         Texture2D ramEnemyLeft;
         Texture2D ramEnemyRight;
+        Texture2D defenderUp;
+        Texture2D defenderDown;
+        Texture2D defenderLeft;
+        Texture2D defenderRight;
         Texture2D coinIcon;
         Texture2D heartIcon;
         Texture2D shopIcon;
         Texture2D shopTint;
         Texture2D swordIcon;
         Texture2D sawBladeTexture;
+        Texture2D bulletTexture;
 
         //Rectangles
         Rectangle castleRect;
@@ -58,12 +63,15 @@ namespace Course_Summative___Hunter
         int bladeCount;
         int atkDamage;
         int wave;
+        int defenderCount;
+        int bulletSpawnDelay;
 
         //Lists
         List<BasicEnemy> basicEnemys;
         List<Blade> bladesList;
         List<ReinforcedEnemy> reinforcedEnemyList;
         List<RamEnemy> ramEnemyList;
+        List<Bullet> bulletList;
 
         //MouseStates
         MouseState mouseState;
@@ -110,6 +118,8 @@ namespace Course_Summative___Hunter
             wave = 0;
             atkDamage = 1;
             bladeCount = 0;
+            defenderCount = 4;
+            bulletSpawnDelay = 0;
 
             //Rectangle Setup
             playButtonRect = new Rectangle(200, 530, 300, 150);
@@ -129,6 +139,7 @@ namespace Course_Summative___Hunter
             bladesList = new List<Blade>();
             reinforcedEnemyList = new List<ReinforcedEnemy>();
             ramEnemyList = new List<RamEnemy>();
+            bulletList = new List<Bullet>();
         }
 
         protected override void LoadContent()
@@ -160,6 +171,11 @@ namespace Course_Summative___Hunter
             shopTint = Content.Load<Texture2D>("shopTint");
             sawBladeTexture = Content.Load<Texture2D>("sawBlade");
             howToPlayTexture = Content.Load<Texture2D>("HowToPlay");
+            defenderUp = Content.Load<Texture2D>("defenderUp");
+            defenderDown = Content.Load<Texture2D>("defenderDown");
+            defenderLeft = Content.Load<Texture2D>("defenderLeft");
+            defenderRight = Content.Load<Texture2D>("defenderRight");
+            bulletTexture = Content.Load<Texture2D>("bullet");
 
             //Loads SpriteFonts
             castleHealthText = Content.Load<SpriteFont>("healthText");
@@ -206,6 +222,9 @@ namespace Course_Summative___Hunter
                 //Checks If The Wave Is Over
                 if (basicEnemys.Count == 0 && reinforcedEnemyList.Count == 0 && ramEnemyList.Count == 0)
                 {
+                    //Clears bullets
+                    bulletList.Clear();
+
                     //Adds Wave Count And Sets Up The Five Wave Count, Five Wave Count Goes Up By 1 Every 5 Waves
                     wave++;
                     double fiveWaveCount = wave / 5;
@@ -333,6 +352,54 @@ namespace Course_Summative___Hunter
                 //Used To Stop Over Hitting
                 bool clickedOne = false;
 
+                //Spawns bullets if defenders are there and delay is 0
+                if (defenderCount == 1 && bulletSpawnDelay <= 0)
+                {
+                    bulletList.Add(new Bullet(new Rectangle(430, 325, 10, 10), bulletTexture));
+                    bulletSpawnDelay = 60;
+                }
+                else if (defenderCount == 2 && bulletSpawnDelay <= 0)
+                {
+                    bulletList.Add(new Bullet(new Rectangle(430, 325, 10, 10), bulletTexture));
+                    bulletList.Add(new Bullet(new Rectangle(220, 325, 10, 10), bulletTexture));
+                    bulletSpawnDelay = 60;
+                }
+                else if (defenderCount == 3 && bulletSpawnDelay <= 0)
+                {
+                    bulletList.Add(new Bullet(new Rectangle(430, 325, 10, 10), bulletTexture));
+                    bulletList.Add(new Bullet(new Rectangle(220, 325, 10, 10), bulletTexture));
+                    bulletList.Add(new Bullet(new Rectangle(325, 400, 10, 10), bulletTexture));
+                    bulletSpawnDelay = 60;
+                }
+                else if (defenderCount == 4 && bulletSpawnDelay <= 0)
+                {
+                    bulletList.Add(new Bullet(new Rectangle(430, 325, 10, 10), bulletTexture));
+                    bulletList.Add(new Bullet(new Rectangle(220, 325, 10, 10), bulletTexture));
+                    bulletList.Add(new Bullet(new Rectangle(325, 400, 10, 10), bulletTexture));
+                    bulletList.Add(new Bullet(new Rectangle(325, 195, 10, 10), bulletTexture));
+                    bulletSpawnDelay = 60;
+                }
+                else if (defenderCount > 0 && bulletSpawnDelay >= 0)
+                {
+                    bulletSpawnDelay--;
+                }
+
+                foreach (Bullet i in bulletList)
+                {
+                    if (ramEnemyList.Count != 0)
+                    {
+                        i.Move(_graphics, ramEnemyList[0].BoundRect);
+                    }
+                    else if (reinforcedEnemyList.Count != 0)
+                    {
+                        i.Move(_graphics, reinforcedEnemyList[0].BoundRect);
+                    }
+                    else if (basicEnemys.Count != 0)
+                    {
+                        i.Move(_graphics, basicEnemys[0].BoundRect);
+                    }
+                }
+
                 //Loops Through Bad Guy List
                 for (int i = 0; i < basicEnemys.Count; i++)
                 {
@@ -346,6 +413,17 @@ namespace Course_Summative___Hunter
                         {
                             basicEnemys[i].Damage(1);
                         }
+                    }
+                    //Checks if bullet hits, deals damage and then removes bullet
+                    for (int e = 0; e < bulletList.Count; e++)
+                    {
+                        if (bulletList[e].BoundRect.Intersects(basicEnemys[i].BoundRect))
+                        {
+                            basicEnemys[i].Damage(1);
+                            bulletList.RemoveAt(e);
+                            e--;
+                        }
+
                     }
                     // Detects A Click on Enemies, Applies Damage
                     if (!clickedOne && mouseState.LeftButton == ButtonState.Pressed && preMouseState.LeftButton == ButtonState.Released)
@@ -382,6 +460,17 @@ namespace Course_Summative___Hunter
 
                         }
                     }
+                    //Checks if bullet hits, deals damage and then removes bullet
+                    for (int e = 0; e < bulletList.Count; e++)
+                    {
+                        if (bulletList[e].BoundRect.Intersects(reinforcedEnemyList[i].BoundRect))
+                        {
+                            reinforcedEnemyList[i].Damage(1);
+                            bulletList.RemoveAt(e);
+                            e--;
+                        }
+
+                    }
                     //Checks If A Enemy Dies, Gives Coins
                     if (reinforcedEnemyList[i].Health <= 0)
                     {
@@ -406,6 +495,17 @@ namespace Course_Summative___Hunter
                             ramEnemyList[i].Damage(atkDamage);
 
                         }
+                    }
+                    //Checks if bullet hits, deals damage and then removes bullet
+                    for (int e = 0; e < bulletList.Count; e++)
+                    {
+                        if (bulletList[e].BoundRect.Intersects(ramEnemyList[i].BoundRect))
+                        {
+                            ramEnemyList[i].Damage(1);
+                            bulletList.RemoveAt(e);
+                            e--;
+                        }
+
                     }
                     //Checks If The Blades Hits, Applies Damage
                     foreach (Blade blade in bladesList)
@@ -440,7 +540,7 @@ namespace Course_Summative___Hunter
             }
             //How To Play Screen
             else if (screen == Screen.HowToPlay)
-            { 
+            {
 
             }
             //The Shop Screen
@@ -527,6 +627,28 @@ namespace Course_Summative___Hunter
                 _spriteBatch.DrawString(castleHealthText, $"{atkDamage}", new Vector2(30, 60), Color.LightGray);
                 _spriteBatch.Draw(sawBladeTexture, new Rectangle(0, 94, 22, 22), Color.White);
                 _spriteBatch.DrawString(castleHealthText, $"{bladeCount}", new Vector2(30, 90), Color.LightGray);
+                if (defenderCount == 1)
+                {
+                    _spriteBatch.Draw(defenderRight, new Rectangle(430, 325, 50, 50), Color.White);
+                }
+                else if (defenderCount == 2)
+                {
+                    _spriteBatch.Draw(defenderRight, new Rectangle(430, 325, 50, 50), Color.White);
+                    _spriteBatch.Draw(defenderLeft, new Rectangle(220, 325, 50, 50), Color.White);
+                }
+                else if (defenderCount == 3)
+                {
+                    _spriteBatch.Draw(defenderRight, new Rectangle(430, 325, 50, 50), Color.White);
+                    _spriteBatch.Draw(defenderLeft, new Rectangle(220, 325, 50, 50), Color.White);
+                    _spriteBatch.Draw(defenderDown, new Rectangle(325, 400, 50, 50), Color.White);
+                }
+                else if (defenderCount == 4)
+                {
+                    _spriteBatch.Draw(defenderRight, new Rectangle(430, 325, 50, 50), Color.White);
+                    _spriteBatch.Draw(defenderLeft, new Rectangle(220, 325, 50, 50), Color.White);
+                    _spriteBatch.Draw(defenderDown, new Rectangle(325, 400, 50, 50), Color.White);
+                    _spriteBatch.Draw(defenderUp, new Rectangle(325, 195, 50, 50), Color.White);
+                }
                 foreach (BasicEnemy enemyB in basicEnemys)
                 {
                     enemyB.Draw(_spriteBatch, badGuyHealthText);
@@ -542,6 +664,10 @@ namespace Course_Summative___Hunter
                 foreach (Blade blade in bladesList)
                 {
                     blade.Draw(_spriteBatch);
+                }
+                foreach (Bullet bullet in bulletList)
+                {
+                    bullet.Draw(_spriteBatch);
                 }
                 _spriteBatch.DrawString(castleHealthText, $"Wave: {wave}", new Vector2(300, 0), Color.Black);
             }
@@ -561,6 +687,28 @@ namespace Course_Summative___Hunter
                 _spriteBatch.DrawString(castleHealthText, $"{atkDamage}", new Vector2(30, 60), Color.LightGray);
                 _spriteBatch.Draw(sawBladeTexture, new Rectangle(0, 94, 22, 22), Color.White);
                 _spriteBatch.DrawString(castleHealthText, $"{bladeCount}", new Vector2(30, 90), Color.LightGray);
+                if (defenderCount == 1)
+                {
+                    _spriteBatch.Draw(defenderRight, new Rectangle(430, 325, 50, 50), Color.White);
+                }
+                else if (defenderCount == 2)
+                {
+                    _spriteBatch.Draw(defenderRight, new Rectangle(430, 325, 50, 50), Color.White);
+                    _spriteBatch.Draw(defenderLeft, new Rectangle(220, 325, 50, 50), Color.White);
+                }
+                else if (defenderCount == 3)
+                {
+                    _spriteBatch.Draw(defenderRight, new Rectangle(430, 325, 50, 50), Color.White);
+                    _spriteBatch.Draw(defenderLeft, new Rectangle(220, 325, 50, 50), Color.White);
+                    _spriteBatch.Draw(defenderDown, new Rectangle(325, 400, 50, 50), Color.White);
+                }
+                else if (defenderCount == 4)
+                {
+                    _spriteBatch.Draw(defenderRight, new Rectangle(430, 325, 50, 50), Color.White);
+                    _spriteBatch.Draw(defenderLeft, new Rectangle(220, 325, 50, 50), Color.White);
+                    _spriteBatch.Draw(defenderDown, new Rectangle(325, 400, 50, 50), Color.White);
+                    _spriteBatch.Draw(defenderUp, new Rectangle(325, 195, 50, 50), Color.White);
+                }
                 foreach (BasicEnemy enemyB in basicEnemys)
                 {
                     enemyB.Draw(_spriteBatch, badGuyHealthText);
@@ -576,6 +724,10 @@ namespace Course_Summative___Hunter
                 foreach (Blade blade in bladesList)
                 {
                     blade.Draw(_spriteBatch);
+                }
+                foreach (Bullet bullet in bulletList)
+                {
+                    bullet.Draw(_spriteBatch);
                 }
                 _spriteBatch.Draw(shopTint, new Rectangle(100, 0, 520, 100), Color.White);
 
