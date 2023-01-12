@@ -41,6 +41,7 @@ namespace Course_Summative___Hunter
         Texture2D shopIcon;
         Texture2D shopTint;
         Texture2D swordIcon;
+        Texture2D defenderIcon;
         Texture2D sawBladeTexture;
         Texture2D bulletTexture;
 
@@ -51,6 +52,7 @@ namespace Course_Summative___Hunter
         Rectangle atkBuyRect;
         Rectangle bladeBuyRect;
         Rectangle howToPlayRect;
+        Rectangle defenderBuyRect;
 
         //SpriteFonts
         SpriteFont castleHealthText;
@@ -118,7 +120,7 @@ namespace Course_Summative___Hunter
             wave = 0;
             atkDamage = 1;
             bladeCount = 0;
-            defenderCount = 4;
+            defenderCount = 0;
             bulletSpawnDelay = 0;
 
             //Rectangle Setup
@@ -127,6 +129,7 @@ namespace Course_Summative___Hunter
             shopButtonRect = new Rectangle(620, 5, 75, 75);
             atkBuyRect = new Rectangle(150, 25, 50, 50);
             bladeBuyRect = new Rectangle(250, 25, 50, 50);
+            defenderBuyRect = new Rectangle(350, 25, 50, 50);
             howToPlayRect = new Rectangle(10, 10, 150, 75);
 
             base.Initialize();
@@ -168,6 +171,7 @@ namespace Course_Summative___Hunter
             coinIcon = Content.Load<Texture2D>("coinIcon");
             shopIcon = Content.Load<Texture2D>("shopIcon");
             swordIcon = Content.Load<Texture2D>("swordIcon");
+            defenderIcon = Content.Load<Texture2D>("defenderIcon");
             shopTint = Content.Load<Texture2D>("shopTint");
             sawBladeTexture = Content.Load<Texture2D>("sawBlade");
             howToPlayTexture = Content.Load<Texture2D>("HowToPlay");
@@ -355,29 +359,29 @@ namespace Course_Summative___Hunter
                 //Spawns bullets if defenders are there and delay is 0
                 if (defenderCount == 1 && bulletSpawnDelay <= 0)
                 {
-                    bulletList.Add(new Bullet(new Rectangle(430, 325, 10, 10), bulletTexture));
-                    bulletSpawnDelay = 60;
+                    bulletList.Add(new Bullet(new Rectangle(470, 350, 10, 10), bulletTexture));
+                    bulletSpawnDelay = 120;
                 }
                 else if (defenderCount == 2 && bulletSpawnDelay <= 0)
                 {
-                    bulletList.Add(new Bullet(new Rectangle(430, 325, 10, 10), bulletTexture));
+                    bulletList.Add(new Bullet(new Rectangle(470, 350, 10, 10), bulletTexture));
                     bulletList.Add(new Bullet(new Rectangle(220, 325, 10, 10), bulletTexture));
-                    bulletSpawnDelay = 60;
+                    bulletSpawnDelay = 120;
                 }
                 else if (defenderCount == 3 && bulletSpawnDelay <= 0)
                 {
-                    bulletList.Add(new Bullet(new Rectangle(430, 325, 10, 10), bulletTexture));
+                    bulletList.Add(new Bullet(new Rectangle(460, 345, 10, 10), bulletTexture));
                     bulletList.Add(new Bullet(new Rectangle(220, 325, 10, 10), bulletTexture));
-                    bulletList.Add(new Bullet(new Rectangle(325, 400, 10, 10), bulletTexture));
-                    bulletSpawnDelay = 60;
+                    bulletList.Add(new Bullet(new Rectangle(330, 440, 10, 10), bulletTexture));
+                    bulletSpawnDelay = 120;
                 }
                 else if (defenderCount == 4 && bulletSpawnDelay <= 0)
                 {
-                    bulletList.Add(new Bullet(new Rectangle(430, 325, 10, 10), bulletTexture));
+                    bulletList.Add(new Bullet(new Rectangle(460, 345, 10, 10), bulletTexture));
                     bulletList.Add(new Bullet(new Rectangle(220, 325, 10, 10), bulletTexture));
-                    bulletList.Add(new Bullet(new Rectangle(325, 400, 10, 10), bulletTexture));
-                    bulletList.Add(new Bullet(new Rectangle(325, 195, 10, 10), bulletTexture));
-                    bulletSpawnDelay = 60;
+                    bulletList.Add(new Bullet(new Rectangle(330, 440, 10, 10), bulletTexture));
+                    bulletList.Add(new Bullet(new Rectangle(355, 195, 10, 10), bulletTexture));
+                    bulletSpawnDelay = 120;
                 }
                 else if (defenderCount > 0 && bulletSpawnDelay >= 0)
                 {
@@ -419,7 +423,7 @@ namespace Course_Summative___Hunter
                     {
                         if (bulletList[e].BoundRect.Intersects(basicEnemys[i].BoundRect))
                         {
-                            basicEnemys[i].Damage(1);
+                            basicEnemys[i].Damage(atkDamage);
                             bulletList.RemoveAt(e);
                             e--;
                         }
@@ -465,7 +469,7 @@ namespace Course_Summative___Hunter
                     {
                         if (bulletList[e].BoundRect.Intersects(reinforcedEnemyList[i].BoundRect))
                         {
-                            reinforcedEnemyList[i].Damage(1);
+                            reinforcedEnemyList[i].Damage(atkDamage);
                             bulletList.RemoveAt(e);
                             e--;
                         }
@@ -501,7 +505,7 @@ namespace Course_Summative___Hunter
                     {
                         if (bulletList[e].BoundRect.Intersects(ramEnemyList[i].BoundRect))
                         {
-                            ramEnemyList[i].Damage(1);
+                            ramEnemyList[i].Damage(atkDamage);
                             bulletList.RemoveAt(e);
                             e--;
                         }
@@ -585,6 +589,16 @@ namespace Course_Summative___Hunter
                             coins -= cost;
                         }
                     }
+                    //Checks If The User Buys More Defenders, Does Math To See If They Can, Then Gives Them What They Bought, Also Increases Price For Next Time
+                    if (defenderBuyRect.Contains(mouseState.X, mouseState.Y) && defenderCount < 4)
+                    {
+                        int cost = (defenderCount * 100) + 200;
+                        if (coins >= cost)
+                        {
+                            defenderCount++;
+                            coins -= cost;
+                        }
+                    }
                 }
             }
             //The End Screen
@@ -627,6 +641,8 @@ namespace Course_Summative___Hunter
                 _spriteBatch.DrawString(castleHealthText, $"{atkDamage}", new Vector2(30, 60), Color.LightGray);
                 _spriteBatch.Draw(sawBladeTexture, new Rectangle(0, 94, 22, 22), Color.White);
                 _spriteBatch.DrawString(castleHealthText, $"{bladeCount}", new Vector2(30, 90), Color.LightGray);
+                _spriteBatch.Draw(defenderIcon, new Rectangle(5, 124, 22, 22), Color.White);
+                _spriteBatch.DrawString(castleHealthText, $"{defenderCount}", new Vector2(30, 120), Color.LightGray);
                 if (defenderCount == 1)
                 {
                     _spriteBatch.Draw(defenderRight, new Rectangle(430, 325, 50, 50), Color.White);
@@ -687,6 +703,8 @@ namespace Course_Summative___Hunter
                 _spriteBatch.DrawString(castleHealthText, $"{atkDamage}", new Vector2(30, 60), Color.LightGray);
                 _spriteBatch.Draw(sawBladeTexture, new Rectangle(0, 94, 22, 22), Color.White);
                 _spriteBatch.DrawString(castleHealthText, $"{bladeCount}", new Vector2(30, 90), Color.LightGray);
+                _spriteBatch.Draw(defenderIcon, new Rectangle(5, 124, 22, 22), Color.White);
+                _spriteBatch.DrawString(castleHealthText, $"{defenderCount}", new Vector2(30, 120), Color.LightGray);
                 if (defenderCount == 1)
                 {
                     _spriteBatch.Draw(defenderRight, new Rectangle(430, 325, 50, 50), Color.White);
@@ -746,6 +764,21 @@ namespace Course_Summative___Hunter
                     _spriteBatch.DrawString(shopText, $"${(bladeCount * 100) + 100}", new Vector2(240, 76), Color.Green);
                 else
                     _spriteBatch.DrawString(shopText, $"${(bladeCount * 100) + 100}", new Vector2(240, 76), Color.Red);
+
+                //Defender Buy Part, Text Turns Red If They Can't Buy It, Green If They Can
+                _spriteBatch.Draw(defenderIcon, defenderBuyRect, Color.White);
+                _spriteBatch.DrawString(shopText, $"{defenderCount}/4", new Vector2(350, 0), Color.LightGray);
+                if (defenderCount < 4)
+                {
+                    if (coins >= (defenderCount * 100) + 200)
+                        _spriteBatch.DrawString(shopText, $"${(defenderCount * 100) + 200}", new Vector2(340, 76), Color.Green);
+                    else
+                        _spriteBatch.DrawString(shopText, $"${(defenderCount * 100) + 200}", new Vector2(340, 76), Color.Red);
+                }
+                else
+                {
+                    _spriteBatch.DrawString(shopText, $"N/A", new Vector2(340, 76), Color.LightGray);
+                }
             }
 
             //End Screen

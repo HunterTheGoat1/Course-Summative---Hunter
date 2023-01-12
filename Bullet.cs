@@ -34,19 +34,19 @@ namespace Course_Summative___Hunter
         {
             if(_rectangle.X < (enemyRect.X + 15))
             {
-                _rectangle.X += 2;
+                _rectangle.X += 3;
             }
             if (_rectangle.X > (enemyRect.X + 15))
             {
-                _rectangle.X -= 2;
+                _rectangle.X -= 3;
             }
             if (_rectangle.Y < (enemyRect.Y + 15))
             {
-                _rectangle.Y += 2;
+                _rectangle.Y += 3;
             }
             if (_rectangle.Y > (enemyRect.Y + 15))
             {
-                _rectangle.Y -= 2;
+                _rectangle.Y -= 3;
             }
         }
         public void Draw(SpriteBatch spriteBatch)
