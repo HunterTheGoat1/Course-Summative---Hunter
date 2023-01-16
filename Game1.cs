@@ -1,7 +1,9 @@
 ﻿//Game By Hunter Wilson, ICS4U-01
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 using System;
 using System.Collections.Generic;
 using static System.Net.Mime.MediaTypeNames;
@@ -45,6 +47,16 @@ namespace Course_Summative___Hunter
         Texture2D sawBladeTexture;
         Texture2D bulletTexture;
 
+        //Sound Effects
+        SoundEffect startUpSound;
+
+        //Songs
+        Song mainMenuSong;
+        Song fightMusicSong;
+
+        //Sound Instances
+        SoundEffectInstance startUpSoundInstance;
+
         //Rectangles
         Rectangle castleRect;
         Rectangle playButtonRect;
@@ -67,6 +79,10 @@ namespace Course_Summative___Hunter
         int wave;
         int defenderCount;
         int bulletSpawnDelay;
+
+        //Global Bools
+        bool isPlayingMainMenuSong;
+        bool isPlayingFightSong;
 
         //Lists
         List<BasicEnemy> basicEnemys;
@@ -134,6 +150,9 @@ namespace Course_Summative___Hunter
 
             base.Initialize();
 
+            //Play Start Up Sound
+            startUpSound.Play();
+
             //Sets Up Random Gen
             ranGen = new Random();
 
@@ -186,6 +205,12 @@ namespace Course_Summative___Hunter
             badGuyHealthText = Content.Load<SpriteFont>("badGuyHealth");
             shopText = Content.Load<SpriteFont>("shopText");
 
+            //Loads SoundEffects
+            startUpSound = Content.Load<SoundEffect>("startUpSound");
+
+            //Loads Songs
+            mainMenuSong = Content.Load<Song>("menuSound");
+            fightMusicSong = Content.Load<Song>("fightMusic");
         }
 
         protected override void Update(GameTime gameTime)
@@ -197,14 +222,24 @@ namespace Course_Summative___Hunter
             //Allows Escape To Quit Game
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-
             //The Main Menu Screen
             if (screen == Screen.MainMenu)
             {
+                //Does song playing and looping
+                if (!isPlayingMainMenuSong && gameTime.TotalGameTime.TotalSeconds > 4.5)
+                {
+                    MediaPlayer.IsRepeating = true;
+                    MediaPlayer.Play(mainMenuSong);
+                    isPlayingMainMenuSong = true;
+                }
                 //Checks If User Clicks Play, Then Changes The Screen To The Game Screen If They Pressed It
                 if (mouseState.LeftButton == ButtonState.Pressed && preMouseState.LeftButton == ButtonState.Released)
                     if (playButtonRect.Contains(mouseState.X, mouseState.Y))
+                    {
+                        isPlayingMainMenuSong = false;
+                        MediaPlayer.Stop();
                         screen = Screen.GameScreen;
+                    }
                 //Checks If User Clicks How To Play, Then Changes The Screen To The How To Play Screen If They Pressed It
                 if (mouseState.LeftButton == ButtonState.Pressed && preMouseState.LeftButton == ButtonState.Released)
                     if (howToPlayRect.Contains(mouseState.X, mouseState.Y))
@@ -223,6 +258,13 @@ namespace Course_Summative___Hunter
             //The Game Screen
             else if (screen == Screen.GameScreen)
             {
+                //Does song playing and looping
+                if (!isPlayingFightSong)
+                {
+                    MediaPlayer.IsRepeating = true;
+                    MediaPlayer.Play(fightMusicSong);
+                    isPlayingFightSong = true;
+                }
                 //Checks If The Wave Is Over
                 if (basicEnemys.Count == 0 && reinforcedEnemyList.Count == 0 && ramEnemyList.Count == 0)
                 {
