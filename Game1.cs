@@ -95,6 +95,9 @@ namespace Course_Summative___Hunter
         MouseState mouseState;
         MouseState preMouseState;
 
+        //Keyboard State
+        KeyboardState keyboardState;
+
         //Random Gen
         Random ranGen;
 
@@ -125,7 +128,7 @@ namespace Course_Summative___Hunter
         protected override void Initialize()
         {
             //Sets Window Title
-            this.Window.Title = "Castle Hold Up";
+            this.Window.Title = "Castle Hold Up | By Hunter Wilson";
 
             //Sets The Screen
             screen = Screen.MainMenu;
@@ -219,6 +222,9 @@ namespace Course_Summative___Hunter
             preMouseState = mouseState;
             mouseState = Mouse.GetState();
 
+            //Sets keyboard states
+            keyboardState = Keyboard.GetState();
+
             //Allows Escape To Quit Game
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
@@ -238,6 +244,21 @@ namespace Course_Summative___Hunter
                     {
                         isPlayingMainMenuSong = false;
                         MediaPlayer.Stop();
+
+                        castleHealth = 100;
+                        coins = 0;
+                        wave = 0;
+                        atkDamage = 1;
+                        bladeCount = 0;
+                        defenderCount = 0;
+                        bulletSpawnDelay = 0;
+
+                        basicEnemys.Clear();
+                        bladesList.Clear();
+                        reinforcedEnemyList.Clear();
+                        ramEnemyList.Clear();
+                        bulletList.Clear();
+
                         screen = Screen.GameScreen;
                     }
                 //Checks If User Clicks How To Play, Then Changes The Screen To The How To Play Screen If They Pressed It
@@ -583,6 +604,14 @@ namespace Course_Summative___Hunter
                         screen = Screen.ShopScreen;
                     }
                 }
+
+                if (castleHealth <= 0)
+                {
+                    castleHealth = 0;
+                    MediaPlayer.Stop();
+                    isPlayingFightSong = false;
+                    screen = Screen.EndScreen;
+                }
             }
             //How To Play Screen
             else if (screen == Screen.HowToPlay)
@@ -646,7 +675,10 @@ namespace Course_Summative___Hunter
             //The End Screen
             else if (screen == Screen.EndScreen)
             {
-
+                if (keyboardState.IsKeyDown(Keys.R))
+                {
+                    screen = Screen.MainMenu;
+                }
             }
 
             base.Update(gameTime);
@@ -826,7 +858,66 @@ namespace Course_Summative___Hunter
             //End Screen
             else if (screen == Screen.EndScreen)
             {
-
+                //Draws All The Things Needed In The End Screen
+                _spriteBatch.Draw(gameBackground, new Rectangle(0, 0, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight), Color.White);
+                _spriteBatch.Draw(castleTexture, castleRect, Color.White);
+                _spriteBatch.Draw(heartIcon, new Rectangle(0, 0, 25, 25), Color.White);
+                _spriteBatch.DrawString(castleHealthText, $"{System.Math.Round(castleHealth, 2)}", new Vector2(30, 0), Color.Red);
+                _spriteBatch.Draw(coinIcon, new Rectangle(0, 32, 25, 25), Color.White);
+                _spriteBatch.DrawString(castleHealthText, $"{coins}", new Vector2(30, 30), Color.Gold);
+                _spriteBatch.Draw(shopIcon, shopButtonRect, Color.White);
+                _spriteBatch.Draw(swordIcon, new Rectangle(0, 64, 22, 22), Color.White);
+                _spriteBatch.DrawString(castleHealthText, $"{atkDamage}", new Vector2(30, 60), Color.LightGray);
+                _spriteBatch.Draw(sawBladeTexture, new Rectangle(0, 94, 22, 22), Color.White);
+                _spriteBatch.DrawString(castleHealthText, $"{bladeCount}", new Vector2(30, 90), Color.LightGray);
+                _spriteBatch.Draw(defenderIcon, new Rectangle(5, 124, 22, 22), Color.White);
+                _spriteBatch.DrawString(castleHealthText, $"{defenderCount}", new Vector2(30, 120), Color.LightGray);
+                if (defenderCount == 1)
+                {
+                    _spriteBatch.Draw(defenderRight, new Rectangle(430, 325, 50, 50), Color.White);
+                }
+                else if (defenderCount == 2)
+                {
+                    _spriteBatch.Draw(defenderRight, new Rectangle(430, 325, 50, 50), Color.White);
+                    _spriteBatch.Draw(defenderLeft, new Rectangle(220, 325, 50, 50), Color.White);
+                }
+                else if (defenderCount == 3)
+                {
+                    _spriteBatch.Draw(defenderRight, new Rectangle(430, 325, 50, 50), Color.White);
+                    _spriteBatch.Draw(defenderLeft, new Rectangle(220, 325, 50, 50), Color.White);
+                    _spriteBatch.Draw(defenderDown, new Rectangle(325, 400, 50, 50), Color.White);
+                }
+                else if (defenderCount == 4)
+                {
+                    _spriteBatch.Draw(defenderRight, new Rectangle(430, 325, 50, 50), Color.White);
+                    _spriteBatch.Draw(defenderLeft, new Rectangle(220, 325, 50, 50), Color.White);
+                    _spriteBatch.Draw(defenderDown, new Rectangle(325, 400, 50, 50), Color.White);
+                    _spriteBatch.Draw(defenderUp, new Rectangle(325, 195, 50, 50), Color.White);
+                }
+                foreach (BasicEnemy enemyB in basicEnemys)
+                {
+                    enemyB.Draw(_spriteBatch, badGuyHealthText);
+                }
+                foreach (ReinforcedEnemy enemyB in reinforcedEnemyList)
+                {
+                    enemyB.Draw(_spriteBatch, badGuyHealthText);
+                }
+                foreach (RamEnemy enemyB in ramEnemyList)
+                {
+                    enemyB.Draw(_spriteBatch, badGuyHealthText);
+                }
+                foreach (Blade blade in bladesList)
+                {
+                    blade.Draw(_spriteBatch);
+                }
+                foreach (Bullet bullet in bulletList)
+                {
+                    bullet.Draw(_spriteBatch);
+                }
+                _spriteBatch.Draw(shopTint, new Rectangle(240, 220, 220, 150), Color.White);
+                _spriteBatch.DrawString(castleHealthText, $"You Died!", new Vector2(285, 240), Color.Red);
+                _spriteBatch.DrawString(castleHealthText, $"Wave #{wave}", new Vector2(295, 280), Color.White);
+                _spriteBatch.DrawString(castleHealthText, $"Hit R To Leave", new Vector2(255, 320), Color.Gray);
             }
 
             _spriteBatch.End();
