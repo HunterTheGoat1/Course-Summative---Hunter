@@ -79,6 +79,7 @@ namespace Course_Summative___Hunter
         int wave;
         int defenderCount;
         int bulletSpawnDelay;
+        int shootSpeed;
 
         //Global Bools
         bool isPlayingMainMenuSong;
@@ -141,6 +142,7 @@ namespace Course_Summative___Hunter
             bladeCount = 0;
             defenderCount = 0;
             bulletSpawnDelay = 0;
+            shootSpeed = 120;
 
             //Rectangle Setup
             playButtonRect = new Rectangle(200, 530, 300, 150);
@@ -245,6 +247,7 @@ namespace Course_Summative___Hunter
                         isPlayingMainMenuSong = false;
                         MediaPlayer.Stop();
 
+                        //Number Setup
                         castleHealth = 100;
                         coins = 0;
                         wave = 0;
@@ -252,6 +255,7 @@ namespace Course_Summative___Hunter
                         bladeCount = 0;
                         defenderCount = 0;
                         bulletSpawnDelay = 0;
+                        shootSpeed = 120;
 
                         basicEnemys.Clear();
                         bladesList.Clear();
@@ -423,20 +427,20 @@ namespace Course_Summative___Hunter
                 if (defenderCount == 1 && bulletSpawnDelay <= 0)
                 {
                     bulletList.Add(new Bullet(new Rectangle(470, 350, 10, 10), bulletTexture));
-                    bulletSpawnDelay = 120;
+                    bulletSpawnDelay = shootSpeed;
                 }
                 else if (defenderCount == 2 && bulletSpawnDelay <= 0)
                 {
                     bulletList.Add(new Bullet(new Rectangle(470, 350, 10, 10), bulletTexture));
                     bulletList.Add(new Bullet(new Rectangle(220, 325, 10, 10), bulletTexture));
-                    bulletSpawnDelay = 120;
+                    bulletSpawnDelay = shootSpeed;
                 }
                 else if (defenderCount == 3 && bulletSpawnDelay <= 0)
                 {
                     bulletList.Add(new Bullet(new Rectangle(460, 345, 10, 10), bulletTexture));
                     bulletList.Add(new Bullet(new Rectangle(220, 325, 10, 10), bulletTexture));
                     bulletList.Add(new Bullet(new Rectangle(330, 440, 10, 10), bulletTexture));
-                    bulletSpawnDelay = 120;
+                    bulletSpawnDelay = shootSpeed;
                 }
                 else if (defenderCount == 4 && bulletSpawnDelay <= 0)
                 {
@@ -444,7 +448,7 @@ namespace Course_Summative___Hunter
                     bulletList.Add(new Bullet(new Rectangle(220, 325, 10, 10), bulletTexture));
                     bulletList.Add(new Bullet(new Rectangle(330, 440, 10, 10), bulletTexture));
                     bulletList.Add(new Bullet(new Rectangle(355, 195, 10, 10), bulletTexture));
-                    bulletSpawnDelay = 120;
+                    bulletSpawnDelay = shootSpeed;
                 }
                 else if (defenderCount > 0 && bulletSpawnDelay >= 0)
                 {
