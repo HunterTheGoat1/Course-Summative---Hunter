@@ -46,6 +46,7 @@ namespace Course_Summative___Hunter
         Texture2D defenderIcon;
         Texture2D sawBladeTexture;
         Texture2D bulletTexture;
+        Texture2D wallTexture;
 
         //Sound Effects
         SoundEffect startUpSound;
@@ -65,6 +66,7 @@ namespace Course_Summative___Hunter
         Rectangle bladeBuyRect;
         Rectangle howToPlayRect;
         Rectangle defenderBuyRect;
+        Rectangle wallBuyRect;
 
         //SpriteFonts
         SpriteFont castleHealthText;
@@ -80,10 +82,12 @@ namespace Course_Summative___Hunter
         int defenderCount;
         int bulletSpawnDelay;
         int shootSpeed;
+        int placedWallCount;
 
         //Global Bools
         bool isPlayingMainMenuSong;
         bool isPlayingFightSong;
+        bool isPlacingWall;
 
         //Lists
         List<BasicEnemy> basicEnemys;
@@ -91,6 +95,7 @@ namespace Course_Summative___Hunter
         List<ReinforcedEnemy> reinforcedEnemyList;
         List<RamEnemy> ramEnemyList;
         List<Bullet> bulletList;
+        List<Wall> wallList;
 
         //MouseStates
         MouseState mouseState;
@@ -151,6 +156,7 @@ namespace Course_Summative___Hunter
             atkBuyRect = new Rectangle(150, 25, 50, 50);
             bladeBuyRect = new Rectangle(250, 25, 50, 50);
             defenderBuyRect = new Rectangle(350, 25, 50, 50);
+            wallBuyRect = new Rectangle(430, 25, 50, 50);
             howToPlayRect = new Rectangle(10, 10, 150, 75);
 
             base.Initialize();
@@ -167,6 +173,7 @@ namespace Course_Summative___Hunter
             reinforcedEnemyList = new List<ReinforcedEnemy>();
             ramEnemyList = new List<RamEnemy>();
             bulletList = new List<Bullet>();
+            wallList = new List<Wall>();
         }
 
         protected override void LoadContent()
@@ -204,6 +211,7 @@ namespace Course_Summative___Hunter
             defenderLeft = Content.Load<Texture2D>("defenderLeft");
             defenderRight = Content.Load<Texture2D>("defenderRight");
             bulletTexture = Content.Load<Texture2D>("bullet");
+            wallTexture = Content.Load<Texture2D>("BrickWall");
 
             //Loads SpriteFonts
             castleHealthText = Content.Load<SpriteFont>("healthText");
@@ -477,6 +485,16 @@ namespace Course_Summative___Hunter
                     //Moves The Bad Guys And Checks If They Hit The Castle, If They Did, It Sets The Castle Health To Its New Value
                     castleHealth = basicEnemys[i].Move(_graphics, castleRect, castleHealth);
 
+                    //Checks If Hits Wall, Moves Back
+                    foreach (Wall wall in wallList)
+                    {
+                        if (wall.BoundRect.Intersects(basicEnemys[i].BoundRect))
+                        {
+                            basicEnemys[i].MoveBack(_graphics, castleRect);
+                            wall.Damage(0.02);
+                        }
+                    }
+
                     //Checks If The Blades Hits, Applies Damage
                     foreach (Blade blade in bladesList)
                     {
@@ -485,6 +503,7 @@ namespace Course_Summative___Hunter
                             basicEnemys[i].Damage(1);
                         }
                     }
+
                     //Checks if bullet hits, deals damage and then removes bullet
                     for (int e = 0; e < bulletList.Count; e++)
                     {
@@ -521,6 +540,16 @@ namespace Course_Summative___Hunter
                     //Moves The Bad Guys And Checks If They Hit The Castle, If They Did, It Sets The Castle Health To Its New Value
                     castleHealth = reinforcedEnemyList[i].Move(_graphics, castleRect, castleHealth);
 
+                    //Checks If Hits Wall, Moves Back
+                    foreach (Wall wall in wallList)
+                    {
+                        if (wall.BoundRect.Intersects(basicEnemys[i].BoundRect))
+                        {
+                            basicEnemys[i].MoveBack(_graphics, castleRect);
+                            wall.Damage(0.02);
+                        }
+                    }
+
                     // Detects A Click on Enemies, Applies Damage
                     if (!clickedOne && mouseState.LeftButton == ButtonState.Pressed && preMouseState.LeftButton == ButtonState.Released)
                     {
@@ -556,6 +585,16 @@ namespace Course_Summative___Hunter
                 {
                     //Moves The Bad Guys And Checks If They Hit The Castle, If They Did, It Sets The Castle Health To Its New Value
                     castleHealth = ramEnemyList[i].Move(_graphics, castleRect, castleHealth);
+
+                    //Checks If Hits Wall, Moves Back
+                    foreach (Wall wall in wallList)
+                    {
+                        if (wall.BoundRect.Intersects(basicEnemys[i].BoundRect))
+                        {
+                            basicEnemys[i].MoveBack(_graphics, castleRect);
+                            wall.Damage(0.1);
+                        }
+                    }
 
                     // Detects A Click on Enemies, Applies Damage
                     if (!clickedOne && mouseState.LeftButton == ButtonState.Pressed && preMouseState.LeftButton == ButtonState.Released)
@@ -609,7 +648,17 @@ namespace Course_Summative___Hunter
                     }
                 }
 
-                if (castleHealth <= 0)
+                for (int i = 0; i < wallList.Count; i++)
+                {
+                    if (wallList[i].Health <= 0)
+                    {
+                        wallList.Remove(wallList[i]);
+                        i--;
+                        placedWallCount--;
+                    }
+                }
+
+                    if (castleHealth <= 0)
                 {
                     castleHealth = 0;
                     MediaPlayer.Stop();
@@ -625,53 +674,78 @@ namespace Course_Summative___Hunter
             //The Shop Screen
             else if (screen == Screen.ShopScreen)
             {
-                //Checks For Mouse Button Click
-                if (mouseState.LeftButton == ButtonState.Pressed && preMouseState.LeftButton == ButtonState.Released)
+                if (isPlacingWall)
                 {
-                    //Checks If The User Clicks The Shop Button, Moves Back To The Game Screen
-                    if (shopButtonRect.Contains(mouseState.X, mouseState.Y))
+                    if (mouseState.LeftButton == ButtonState.Pressed && preMouseState.LeftButton == ButtonState.Released)
                     {
-                        screen = Screen.GameScreen;
-                    }
-                    //Checks If The User Buys More Attack Damage, Does Math To See If They Can, Then Gives Them What They Bought, Also Increases Price For Next Time
-                    if (atkBuyRect.Contains(mouseState.X, mouseState.Y))
-                    {
-                        int cost = atkDamage * 10;
-                        if (coins >= cost)
+                        if (mouseState.X > 0 && mouseState.X < 700 && mouseState.Y > 0 && mouseState.Y < 700)
                         {
-                            atkDamage++;
-                            coins -= cost;
+                            wallList.Add(new Wall(new Rectangle(mouseState.X - 25, mouseState.Y - 25, 50, 50), wallTexture));
+                            isPlacingWall = false;
                         }
                     }
-                    //Checks If The User Buys More Blades, Does Math To See If They Can, Then Gives Them What They Bought, Also Increases Price For Next Time
-                    if (bladeBuyRect.Contains(mouseState.X, mouseState.Y))
+                }
+                else
+                {
+                    //Checks For Mouse Button Click
+                    if (mouseState.LeftButton == ButtonState.Pressed && preMouseState.LeftButton == ButtonState.Released)
                     {
-                        int cost = (bladeCount * 100) + 100;
-                        if (coins >= cost)
+                        //Checks If The User Clicks The Shop Button, Moves Back To The Game Screen
+                        if (shopButtonRect.Contains(mouseState.X, mouseState.Y))
                         {
-                            bladeCount++;
-                            int xSpeed = ranGen.Next(1, 3);
-                            int ySpeed = ranGen.Next(1, 3);
-                            if (xSpeed == 1)
-                                xSpeed = -2;
-                            if (xSpeed == 2)
-                                xSpeed = 2;
-                            if (ySpeed == 1)
-                                ySpeed = -2;
-                            if (ySpeed == 2)
-                                ySpeed = 2;
-                            bladesList.Add(new Blade(new Rectangle(ranGen.Next(100, 600), ranGen.Next(100, 600), 30, 30), new Vector2(xSpeed, ySpeed), sawBladeTexture));
-                            coins -= cost;
+                            screen = Screen.GameScreen;
                         }
-                    }
-                    //Checks If The User Buys More Defenders, Does Math To See If They Can, Then Gives Them What They Bought, Also Increases Price For Next Time
-                    if (defenderBuyRect.Contains(mouseState.X, mouseState.Y) && defenderCount < 4)
-                    {
-                        int cost = (defenderCount * 100) + 200;
-                        if (coins >= cost)
+                        //Checks If The User Buys More Attack Damage, Does Math To See If They Can, Then Gives Them What They Bought, Also Increases Price For Next Time
+                        if (atkBuyRect.Contains(mouseState.X, mouseState.Y))
                         {
-                            defenderCount++;
-                            coins -= cost;
+                            int cost = atkDamage * 10;
+                            if (coins >= cost)
+                            {
+                                atkDamage++;
+                                coins -= cost;
+                            }
+                        }
+                        //Checks If The User Buys More Blades, Does Math To See If They Can, Then Gives Them What They Bought, Also Increases Price For Next Time
+                        if (bladeBuyRect.Contains(mouseState.X, mouseState.Y))
+                        {
+                            int cost = (bladeCount * 100) + 100;
+                            if (coins >= cost)
+                            {
+                                bladeCount++;
+                                int xSpeed = ranGen.Next(1, 3);
+                                int ySpeed = ranGen.Next(1, 3);
+                                if (xSpeed == 1)
+                                    xSpeed = -2;
+                                if (xSpeed == 2)
+                                    xSpeed = 2;
+                                if (ySpeed == 1)
+                                    ySpeed = -2;
+                                if (ySpeed == 2)
+                                    ySpeed = 2;
+                                bladesList.Add(new Blade(new Rectangle(ranGen.Next(100, 600), ranGen.Next(100, 600), 30, 30), new Vector2(xSpeed, ySpeed), sawBladeTexture));
+                                coins -= cost;
+                            }
+                        }
+                        //Checks If The User Buys More Defenders, Does Math To See If They Can, Then Gives Them What They Bought, Also Increases Price For Next Time
+                        if (defenderBuyRect.Contains(mouseState.X, mouseState.Y) && defenderCount < 4)
+                        {
+                            int cost = (defenderCount * 100) + 200;
+                            if (coins >= cost)
+                            {
+                                defenderCount++;
+                                coins -= cost;
+                            }
+                        }
+                        //Wall Buy Spot
+                        if (wallBuyRect.Contains(mouseState.X, mouseState.Y))
+                        {
+                            int cost = (50 + (50 * placedWallCount));
+                            if (coins >= cost)
+                            {
+                                coins -= cost;
+                                placedWallCount++;
+                                isPlacingWall = true;
+                            }
                         }
                     }
                 }
@@ -721,6 +795,8 @@ namespace Course_Summative___Hunter
                 _spriteBatch.DrawString(castleHealthText, $"{bladeCount}", new Vector2(30, 90), Color.LightGray);
                 _spriteBatch.Draw(defenderIcon, new Rectangle(5, 124, 22, 22), Color.White);
                 _spriteBatch.DrawString(castleHealthText, $"{defenderCount}", new Vector2(30, 120), Color.LightGray);
+                _spriteBatch.Draw(wallTexture, new Rectangle(3, 154, 22, 22), Color.White);
+                _spriteBatch.DrawString(castleHealthText, $"{placedWallCount}", new Vector2(30, 150), Color.LightGray);
                 if (defenderCount == 1)
                 {
                     _spriteBatch.Draw(defenderRight, new Rectangle(430, 325, 50, 50), Color.White);
@@ -762,6 +838,10 @@ namespace Course_Summative___Hunter
                 foreach (Bullet bullet in bulletList)
                 {
                     bullet.Draw(_spriteBatch);
+                }
+                foreach (Wall wl in wallList)
+                {
+                    wl.Draw(_spriteBatch, badGuyHealthText);
                 }
                 _spriteBatch.DrawString(castleHealthText, $"Wave: {wave}", new Vector2(300, 0), Color.Black);
             }
@@ -783,6 +863,8 @@ namespace Course_Summative___Hunter
                 _spriteBatch.DrawString(castleHealthText, $"{bladeCount}", new Vector2(30, 90), Color.LightGray);
                 _spriteBatch.Draw(defenderIcon, new Rectangle(5, 124, 22, 22), Color.White);
                 _spriteBatch.DrawString(castleHealthText, $"{defenderCount}", new Vector2(30, 120), Color.LightGray);
+                _spriteBatch.Draw(wallTexture, new Rectangle(3, 154, 22, 22), Color.White);
+                _spriteBatch.DrawString(castleHealthText, $"{placedWallCount}", new Vector2(30, 150), Color.LightGray);
                 if (defenderCount == 1)
                 {
                     _spriteBatch.Draw(defenderRight, new Rectangle(430, 325, 50, 50), Color.White);
@@ -824,6 +906,10 @@ namespace Course_Summative___Hunter
                 foreach (Bullet bullet in bulletList)
                 {
                     bullet.Draw(_spriteBatch);
+                }
+                foreach (Wall wl in wallList)
+                {
+                    wl.Draw(_spriteBatch, badGuyHealthText);
                 }
                 _spriteBatch.Draw(shopTint, new Rectangle(100, 0, 520, 100), Color.White);
 
@@ -857,6 +943,21 @@ namespace Course_Summative___Hunter
                 {
                     _spriteBatch.DrawString(shopText, $"N/A", new Vector2(340, 76), Color.LightGray);
                 }
+
+                //Wall Buy Stuff
+                _spriteBatch.Draw(wallTexture, wallBuyRect, Color.White);
+                _spriteBatch.DrawString(shopText, $"{placedWallCount}", new Vector2(450, 0), Color.LightGray);
+
+                if (coins >= 50 + (50 * placedWallCount))
+                    _spriteBatch.DrawString(shopText, $"${50 + (50 * placedWallCount)}", new Vector2(435, 76), Color.Green);
+                else
+                    _spriteBatch.DrawString(shopText, $"${50 + (50 * placedWallCount)}", new Vector2(435, 76), Color.Red);
+                //Draws wall for placing
+                if (isPlacingWall)
+                {
+                    _spriteBatch.Draw(wallTexture, new Rectangle (mouseState.X - 25, mouseState.Y - 25, 50,50), Color.White);
+                }
+
             }
 
             //End Screen
@@ -917,6 +1018,10 @@ namespace Course_Summative___Hunter
                 foreach (Bullet bullet in bulletList)
                 {
                     bullet.Draw(_spriteBatch);
+                }
+                foreach (Wall wl in wallList)
+                {
+                    wl.Draw(_spriteBatch, badGuyHealthText);
                 }
                 _spriteBatch.Draw(shopTint, new Rectangle(240, 220, 220, 150), Color.White);
                 _spriteBatch.DrawString(castleHealthText, $"You Died!", new Vector2(285, 240), Color.Red);

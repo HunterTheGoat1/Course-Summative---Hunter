@@ -63,6 +63,26 @@ namespace Course_Summative___Hunter
             return castleHealth;
         }
 
+        public void MoveBack(GraphicsDeviceManager graphics, Rectangle castleRect)
+        {
+            if (_rectangle.X > 340)
+            {
+                _rectangle.X++;
+            }
+            if (_rectangle.Y > 340)
+            {
+                _rectangle.Y++;
+            }
+            if (_rectangle.X < 340)
+            {
+                _rectangle.X--;
+            }
+            if (_rectangle.Y < 340)
+            {
+                _rectangle.Y--;
+            }
+        }
+
         public void Damage(int ammount)
         {
             _health -= ammount;
