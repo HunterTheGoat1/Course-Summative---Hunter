@@ -55,9 +55,6 @@ namespace Course_Summative___Hunter
         Song mainMenuSong;
         Song fightMusicSong;
 
-        //Sound Instances
-        SoundEffectInstance startUpSoundInstance;
-
         //Rectangles
         Rectangle castleRect;
         Rectangle playButtonRect;
@@ -138,16 +135,6 @@ namespace Course_Summative___Hunter
 
             //Sets The Screen
             screen = Screen.MainMenu;
-
-            //Number Setup
-            castleHealth = 100;
-            coins = 0;
-            wave = 0;
-            atkDamage = 1;
-            bladeCount = 0;
-            defenderCount = 0;
-            bulletSpawnDelay = 0;
-            shootSpeed = 120;
 
             //Rectangle Setup
             playButtonRect = new Rectangle(200, 530, 300, 150);
@@ -257,7 +244,7 @@ namespace Course_Summative___Hunter
 
                         //Number Setup
                         castleHealth = 100;
-                        coins = 0;
+                        coins = 50;
                         wave = 0;
                         atkDamage = 1;
                         bladeCount = 0;
@@ -280,12 +267,13 @@ namespace Course_Summative___Hunter
             }
 
             //The How To Play Screen
-            if (screen == Screen.MainMenu)
+            if (screen == Screen.HowToPlay)
             {
                 //Checks If User Clicks Back To Main Menu
-                if (mouseState.LeftButton == ButtonState.Pressed && preMouseState.LeftButton == ButtonState.Released)
-                    if (playButtonRect.Contains(mouseState.X, mouseState.Y))
-                        screen = Screen.MainMenu;
+                if (Keyboard.GetState().IsKeyDown(Keys.C))
+                {
+                    screen = Screen.MainMenu;
+                }
             }
 
             //The Game Screen
@@ -666,11 +654,6 @@ namespace Course_Summative___Hunter
                     screen = Screen.EndScreen;
                 }
             }
-            //How To Play Screen
-            else if (screen == Screen.HowToPlay)
-            {
-
-            }
             //The Shop Screen
             else if (screen == Screen.ShopScreen)
             {
@@ -778,12 +761,22 @@ namespace Course_Summative___Hunter
                 _spriteBatch.Draw(gameTitle, new Rectangle(100, 250, 500, 100), Color.White);
             }
 
+            //How To Play Screen
+            if (screen == Screen.HowToPlay)
+            {
+                _spriteBatch.DrawString(shopText, $"Press C to close the How To Play Menu\nStuff", new Vector2(30, 30), Color.LightGray);
+            }
+
             //Game Screen
             else if (screen == Screen.GameScreen)
             {
                 //Draws All The Things Needed In The Game Screen
                 _spriteBatch.Draw(gameBackground, new Rectangle(0, 0, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight), Color.White);
                 _spriteBatch.Draw(castleTexture, castleRect, Color.White);
+                foreach (Wall wl in wallList)
+                {
+                    wl.Draw(_spriteBatch, badGuyHealthText);
+                }
                 _spriteBatch.Draw(heartIcon, new Rectangle(0, 0, 25, 25), Color.White);
                 _spriteBatch.DrawString(castleHealthText, $"{System.Math.Round(castleHealth, 2)}", new Vector2(30, 0), Color.Red);
                 _spriteBatch.Draw(coinIcon, new Rectangle(0, 32, 25, 25), Color.White);
@@ -838,10 +831,6 @@ namespace Course_Summative___Hunter
                 foreach (Bullet bullet in bulletList)
                 {
                     bullet.Draw(_spriteBatch);
-                }
-                foreach (Wall wl in wallList)
-                {
-                    wl.Draw(_spriteBatch, badGuyHealthText);
                 }
                 _spriteBatch.DrawString(castleHealthText, $"Wave: {wave}", new Vector2(300, 0), Color.Black);
             }
@@ -852,6 +841,10 @@ namespace Course_Summative___Hunter
                 //Draws All The Things Needed In The Shop Screen
                 _spriteBatch.Draw(gameBackground, new Rectangle(0, 0, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight), Color.White);
                 _spriteBatch.Draw(castleTexture, castleRect, Color.White);
+                foreach (Wall wl in wallList)
+                {
+                    wl.Draw(_spriteBatch, badGuyHealthText);
+                }
                 _spriteBatch.Draw(heartIcon, new Rectangle(0, 0, 25, 25), Color.White);
                 _spriteBatch.DrawString(castleHealthText, $"{System.Math.Round(castleHealth, 2)}", new Vector2(30, 0), Color.Red);
                 _spriteBatch.Draw(coinIcon, new Rectangle(0, 32, 25, 25), Color.White);
@@ -906,10 +899,6 @@ namespace Course_Summative___Hunter
                 foreach (Bullet bullet in bulletList)
                 {
                     bullet.Draw(_spriteBatch);
-                }
-                foreach (Wall wl in wallList)
-                {
-                    wl.Draw(_spriteBatch, badGuyHealthText);
                 }
                 _spriteBatch.Draw(shopTint, new Rectangle(100, 0, 520, 100), Color.White);
 
@@ -966,6 +955,10 @@ namespace Course_Summative___Hunter
                 //Draws All The Things Needed In The End Screen
                 _spriteBatch.Draw(gameBackground, new Rectangle(0, 0, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight), Color.White);
                 _spriteBatch.Draw(castleTexture, castleRect, Color.White);
+                foreach (Wall wl in wallList)
+                {
+                    wl.Draw(_spriteBatch, badGuyHealthText);
+                }
                 _spriteBatch.Draw(heartIcon, new Rectangle(0, 0, 25, 25), Color.White);
                 _spriteBatch.DrawString(castleHealthText, $"{System.Math.Round(castleHealth, 2)}", new Vector2(30, 0), Color.Red);
                 _spriteBatch.Draw(coinIcon, new Rectangle(0, 32, 25, 25), Color.White);
@@ -1018,10 +1011,6 @@ namespace Course_Summative___Hunter
                 foreach (Bullet bullet in bulletList)
                 {
                     bullet.Draw(_spriteBatch);
-                }
-                foreach (Wall wl in wallList)
-                {
-                    wl.Draw(_spriteBatch, badGuyHealthText);
                 }
                 _spriteBatch.Draw(shopTint, new Rectangle(240, 220, 220, 150), Color.White);
                 _spriteBatch.DrawString(castleHealthText, $"You Died!", new Vector2(285, 240), Color.Red);
