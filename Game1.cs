@@ -47,6 +47,7 @@ namespace Course_Summative___Hunter
         Texture2D sawBladeTexture;
         Texture2D bulletTexture;
         Texture2D wallTexture;
+        Texture2D defenderSpeedIcon;
 
         //Sound Effects
         SoundEffect startUpSound;
@@ -64,6 +65,7 @@ namespace Course_Summative___Hunter
         Rectangle howToPlayRect;
         Rectangle defenderBuyRect;
         Rectangle wallBuyRect;
+        Rectangle defSpeedBuyRect;
 
         //SpriteFonts
         SpriteFont castleHealthText;
@@ -80,6 +82,7 @@ namespace Course_Summative___Hunter
         int bulletSpawnDelay;
         int shootSpeed;
         int placedWallCount;
+        int defenderSpeedUpgradeCount;
 
         //Global Bools
         bool isPlayingMainMenuSong;
@@ -145,6 +148,7 @@ namespace Course_Summative___Hunter
             defenderBuyRect = new Rectangle(350, 25, 50, 50);
             wallBuyRect = new Rectangle(430, 25, 50, 50);
             howToPlayRect = new Rectangle(10, 10, 150, 75);
+            defSpeedBuyRect = new Rectangle(530, 25, 50, 50);
 
             base.Initialize();
 
@@ -199,6 +203,7 @@ namespace Course_Summative___Hunter
             defenderRight = Content.Load<Texture2D>("defenderRight");
             bulletTexture = Content.Load<Texture2D>("bullet");
             wallTexture = Content.Load<Texture2D>("BrickWall");
+            defenderSpeedIcon = Content.Load<Texture2D>("speedIcon");
 
             //Loads SpriteFonts
             castleHealthText = Content.Load<SpriteFont>("healthText");
@@ -251,12 +256,15 @@ namespace Course_Summative___Hunter
                         defenderCount = 0;
                         bulletSpawnDelay = 0;
                         shootSpeed = 120;
+                        placedWallCount = 0;
+                        defenderSpeedUpgradeCount = 0;
 
                         basicEnemys.Clear();
                         bladesList.Clear();
                         reinforcedEnemyList.Clear();
                         ramEnemyList.Clear();
                         bulletList.Clear();
+                        wallList.Clear();
 
                         screen = Screen.GameScreen;
                     }
@@ -636,6 +644,7 @@ namespace Course_Summative___Hunter
                     }
                 }
 
+                //Checks if any walls need to be removed
                 for (int i = 0; i < wallList.Count; i++)
                 {
                     if (wallList[i].Health <= 0)
@@ -646,7 +655,7 @@ namespace Course_Summative___Hunter
                     }
                 }
 
-                    if (castleHealth <= 0)
+                if (castleHealth <= 0)
                 {
                     castleHealth = 0;
                     MediaPlayer.Stop();
@@ -730,6 +739,17 @@ namespace Course_Summative___Hunter
                                 isPlacingWall = true;
                             }
                         }
+                        //Defender Speed Buy Spot
+                        if (defSpeedBuyRect.Contains(mouseState.X, mouseState.Y))
+                        {
+                            int cost = (150 + (150 * defenderSpeedUpgradeCount));
+                            if (coins >= cost && defenderSpeedUpgradeCount < 5)
+                            {
+                                coins -= cost;
+                                defenderSpeedUpgradeCount++;
+                                shootSpeed -= 20;
+                            }
+                        }
                     }
                 }
             }
@@ -764,7 +784,7 @@ namespace Course_Summative___Hunter
             //How To Play Screen
             if (screen == Screen.HowToPlay)
             {
-                _spriteBatch.DrawString(shopText, $"Press C to close the How To Play Menu\nStuff", new Vector2(30, 30), Color.LightGray);
+                _spriteBatch.DrawString(shopText, "Press C to close the How To Play Menu\nThis game is called Castle Hold Up\n Made by Hunter T. Wilson in grade 12 2022/2023.\n\nThe goal of this game is to defend the castle, you need to click\nthe bad guys with your mouse to kill them and then upgrade your\ndefence from the shop. As the game goes on the enemys will become\nstronger, more of them and with different types. You need to last as\nlong as you can. There is no end to this game.", new Vector2(30, 30), Color.LightGray);
             }
 
             //Game Screen
@@ -930,7 +950,7 @@ namespace Course_Summative___Hunter
                 }
                 else
                 {
-                    _spriteBatch.DrawString(shopText, $"N/A", new Vector2(340, 76), Color.LightGray);
+                    _spriteBatch.DrawString(shopText, $"MAX", new Vector2(340, 76), Color.Red);
                 }
 
                 //Wall Buy Stuff
@@ -941,10 +961,25 @@ namespace Course_Summative___Hunter
                     _spriteBatch.DrawString(shopText, $"${50 + (50 * placedWallCount)}", new Vector2(435, 76), Color.Green);
                 else
                     _spriteBatch.DrawString(shopText, $"${50 + (50 * placedWallCount)}", new Vector2(435, 76), Color.Red);
+                //Defender Speed Boost Buy
+                _spriteBatch.Draw(defenderSpeedIcon, defSpeedBuyRect, Color.White);
+                _spriteBatch.DrawString(shopText, $"{defenderSpeedUpgradeCount}/5", new Vector2(550, 0), Color.LightGray);
+
+                if (defenderSpeedUpgradeCount < 5)
+                {
+                    if (coins >= 150 + (150 * defenderSpeedUpgradeCount))
+                        _spriteBatch.DrawString(shopText, $"${150 + (150 * defenderSpeedUpgradeCount)}", new Vector2(535, 76), Color.Green);
+                    else
+                        _spriteBatch.DrawString(shopText, $"${150 + (150 * defenderSpeedUpgradeCount)}", new Vector2(535, 76), Color.Red);
+                }
+                else
+                {
+                    _spriteBatch.DrawString(shopText, $"MAX", new Vector2(535, 76), Color.Red);
+                }
                 //Draws wall for placing
                 if (isPlacingWall)
                 {
-                    _spriteBatch.Draw(wallTexture, new Rectangle (mouseState.X - 25, mouseState.Y - 25, 50,50), Color.White);
+                    _spriteBatch.Draw(wallTexture, new Rectangle(mouseState.X - 25, mouseState.Y - 25, 50, 50), Color.White);
                 }
 
             }
