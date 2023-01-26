@@ -249,8 +249,8 @@ namespace Course_Summative___Hunter
 
                         //Number Setup
                         castleHealth = 100;
-                        coins = 999950;
-                        wave = 60;
+                        coins = 50;
+                        wave = 0;
                         atkDamage = 1;
                         bladeCount = 0;
                         defenderCount = 0;
