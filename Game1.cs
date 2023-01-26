@@ -475,6 +475,17 @@ namespace Course_Summative___Hunter
                     }
                 }
 
+                //Checks if any walls need to be removed
+                for (int i = 0; i < wallList.Count; i++)
+                {
+                    if (wallList[i].Health <= 0)
+                    {
+                        wallList.Remove(wallList[i]);
+                        i--;
+                        placedWallCount--;
+                    }
+                }
+
                 //Loops Through Bad Guy List
                 for (int i = 0; i < basicEnemys.Count; i++)
                 {
@@ -641,17 +652,6 @@ namespace Course_Summative___Hunter
                     if (shopButtonRect.Contains(mouseState.X, mouseState.Y))
                     {
                         screen = Screen.ShopScreen;
-                    }
-                }
-
-                //Checks if any walls need to be removed
-                for (int i = 0; i < wallList.Count; i++)
-                {
-                    if (wallList[i].Health <= 0)
-                    {
-                        wallList.Remove(wallList[i]);
-                        i--;
-                        placedWallCount--;
                     }
                 }
 
