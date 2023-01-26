@@ -249,8 +249,8 @@ namespace Course_Summative___Hunter
 
                         //Number Setup
                         castleHealth = 100;
-                        coins = 50;
-                        wave = 0;
+                        coins = 999950;
+                        wave = 60;
                         atkDamage = 1;
                         bladeCount = 0;
                         defenderCount = 0;
@@ -547,16 +547,6 @@ namespace Course_Summative___Hunter
                     //Moves The Bad Guys And Checks If They Hit The Castle, If They Did, It Sets The Castle Health To Its New Value
                     castleHealth = reinforcedEnemyList[i].Move(_graphics, castleRect, castleHealth);
 
-                    //Checks If Hits Wall, Moves Back
-                    foreach (Wall wall in wallList)
-                    {
-                        if (wall.BoundRect.Intersects(basicEnemys[i].BoundRect))
-                        {
-                            basicEnemys[i].MoveBack(_graphics, castleRect);
-                            wall.Damage(0.02);
-                        }
-                    }
-
                     // Detects A Click on Enemies, Applies Damage
                     if (!clickedOne && mouseState.LeftButton == ButtonState.Pressed && preMouseState.LeftButton == ButtonState.Released)
                     {
@@ -592,16 +582,6 @@ namespace Course_Summative___Hunter
                 {
                     //Moves The Bad Guys And Checks If They Hit The Castle, If They Did, It Sets The Castle Health To Its New Value
                     castleHealth = ramEnemyList[i].Move(_graphics, castleRect, castleHealth);
-
-                    //Checks If Hits Wall, Moves Back
-                    foreach (Wall wall in wallList)
-                    {
-                        if (wall.BoundRect.Intersects(basicEnemys[i].BoundRect))
-                        {
-                            basicEnemys[i].MoveBack(_graphics, castleRect);
-                            wall.Damage(0.1);
-                        }
-                    }
 
                     // Detects A Click on Enemies, Applies Damage
                     if (!clickedOne && mouseState.LeftButton == ButtonState.Pressed && preMouseState.LeftButton == ButtonState.Released)
